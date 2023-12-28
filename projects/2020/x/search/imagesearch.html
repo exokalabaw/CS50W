@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Search</title>
+        <title>Image Search</title>
         <link href="./style.css" rel="stylesheet">
     </head>
     <body>
         <div id="topbar">
-            <a href="./imagesearch.html">Image Search</a>
+            <a href="./">Search</a>
             <a href="./advancedsearch.html">Advanced Search</a>
         </div>
         <div id="logocontainer">
-            <picture><img class="lnXdpd" alt="Seasonal Holidays 2023" height="200" src="./img/logo.gif" title="Seasonal Holidays 2023" width="500" id="hplogo" data-atf="1" data-frt="0"></picture>
+            <img class="lnXdpd" alt="image search height="92" src="./img/gimg.png" title="Image search" width="272" id="islogo" data-atf="1" data-frt="0">
+            <span class="imglabel">Images</span>
         </div>
         <div id="formcontainer">
             <form action="https://google.com/search">
@@ -18,11 +19,11 @@
                         <div class="searchicon">
                             <span ><svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg></span>
                         </div>
-                            <input type="text" name="q" id="searchfield">
+                        <input type="select" name="tbm" value="isch" style="display:none" selected>
+                        <input type="text" name="q" id="searchfield">
                 </div>
                 <div id="formbuttons">
-                    <input class="fbs" type="submit" value="Google Search">
-                    <input class="fbs" id="gbqfbb" value="I'm Feeling Lucky" aria-label="I'm Feeling Lucky" name="btnI" role="button" tabindex="0" type="submit" data-ved="0ahUKEwj_ps6LxrGDAxWuweYEHUtoAdYQnRsIFQ">
+                    <input class="fbs" type="submit" value="Search Images">
                 </div>
             </form>
         </div>

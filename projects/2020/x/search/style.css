@@ -1,0 +1,133 @@
+body{
+    font-family: Roboto,arial,sans-serif;
+    font-size: 14px;
+    background-color: #202124;
+    color: #bdc1c6;
+}
+a{
+    color: white;
+    text-decoration: none;
+}
+#logocontainer{
+
+    max-height: 230px;
+    position: relative;
+    text-align: center;
+    margin-left: 40px;
+    margin-right: 40px;
+}
+#logocontainer picture{
+
+    width: 375px;
+    margin: auto;
+    display: block;
+}
+#logocontainer img{
+    max-width: 100%;
+    height: auto;
+}
+#formcontainer{
+    margin: 0 auto;
+    width: auto;
+    max-width: 584px;
+    padding: 20px;
+    position: relative;
+}
+#sfcontainer{
+    display: flex;
+    z-index: 3;
+    position: relative;
+    min-height: 44px;
+    background: #202124;
+    border: 1px solid #5f6368;
+    box-shadow: none;
+    border-radius: 24px;
+    margin: 0 auto;
+    width: 638px;
+    width: auto;
+    max-width: 584px;
+}
+#sfcontainer > div{
+    display: flex;
+    padding: 5px 8px 0 14px;
+    flex-wrap: wrap;
+}
+#sfcontainer .searchicon{
+    display: flex;
+    align-items: center;
+    padding-right: 13px;
+    margin-top: -5px;
+    height: 46px;
+    width: 20px;
+    /* flex-grow: 1; */
+}
+
+#sfcontainer .searchicon span{
+    display: block;
+    height: 20px;
+    line-height: 20px;
+    width: 20px;
+    fill: currentColor;
+}
+#searchfield{
+    resize: none;
+    background-color: transparent;
+    border: none;
+    margin: 0;
+    padding: 0;
+    color: #e8eaed;
+    word-wrap: break-word;
+    outline: none;
+    display: flex;
+    -webkit-tap-highlight-color: transparent;
+    line-height: 22px;
+    font-size: 16px;
+    flex-grow: 5; 
+    padding-right: 18px;
+}
+#topbar{
+    text-align: right;
+    padding: 8px;
+}
+#topbar a{
+    padding-left: 15px;
+    line-height: 24px;
+    vertical-align: middle;
+    display: inline-block;
+    font: 13px/27px Arial,sans-serif;
+}
+#formbuttons{
+    height: 70px;
+    padding-top: 18px;
+    text-align: center;
+}
+.fbs{
+    background-color: #303134;
+    border: 1px solid #303134;
+    border-radius: 4px;
+    color: #e8eaed;
+    font-family: Roboto,arial,sans-serif;
+    font-size: 14px;
+    margin: 11px 4px;
+    padding: 0 16px;
+    line-height: 27px;
+    height: 36px;
+    min-width: 54px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+}
+.imglabel{
+    margin: auto;
+    width: 272px;
+    display: block;
+    color: #4487f6;
+    font: 16px/16px roboto-regular, arial, sans-serif;
+    bottom: 0;
+    white-space: nowrap;
+    text-align: right;
+    margin-top: -18px;
+}
+#islogo{
+    margin-top: 15px;
+}
