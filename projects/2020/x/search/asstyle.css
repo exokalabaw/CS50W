@@ -1,0 +1,156 @@
+
+html, body, div, a{
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-weight: inherit;
+    font-style: inherit;
+    font-size: 100%;
+    vertical-align: baseline;
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #222;
+}
+#topbar{
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    height: 50px;
+}
+#topbar a{
+    font: 13px/27px Arial,sans-serif;
+    padding-left: 15px;
+    line-height: 50px;
+}
+#logocontainer{
+    display: flex;
+    padding: 13px;
+}
+#topbar .rightside{
+    padding-right: 13px;
+}
+#appbar{
+    font-size: 20px;
+    padding: 25px 35px;
+    border-bottom: 1px solid #ebebeb;
+}
+#appbar label{
+    color: #d93025;
+}
+#formcontainer{
+    max-width: 1140px;
+    min-width: 200px;
+    width: 96%;
+    margin: 40px 2% 0 45px;
+    color: #333;
+    font-size: 13px;
+}
+.formcolumns{
+
+    width: 100%;
+    clear: both;
+}
+
+.formcolumns .firstrow{
+    float: left;
+    display: inline-block;
+    min-width: 167px;
+    width: 16%;
+    height: 42px;
+    color: #222;
+    font-size: 13px;
+    line-height: 16px;
+    vertical-align: middle;
+}
+.formheader .firstrow{
+    font-size: 16px;
+    min-height: 42px;
+    font-weight: 500;
+    color: #333;
+}
+.formcolumns .secondrow{
+
+    float: left;
+    display: inline-block;
+    min-width: 167px;
+    min-height: 41px;
+    vertical-align: middle;
+    width: 50%;
+}
+
+.formcolumns .thirdrow{
+
+    float: left;
+    display: inline-block;
+    width: 32%;
+    min-width: 160px;
+    margin: 0 0 8px 1%;
+    color: #555;
+    font-size: 11px;
+    padding-left: 5px;
+    vertical-align: middle;
+    position: relative;
+}
+
+.formheader .thirdrow{
+    margin: 0;
+    float: left;
+    display: inline-block;
+    width: 33%;
+    font-size: 13px;
+    font-weight: 700;
+    color: #777;
+    padding-left: 5px;
+    vertical-align: middle;
+}
+.formheader .thirdrow label{
+    color: #777;
+}
+.formcolumns .thirdrow > div, .formcolumns .firstrow >div{
+    height: 30px;
+    display: table-cell;
+    vertical-align: middle;
+}
+.fiormcolumns .secondrow > div{
+    padding-right: 16px;
+}
+.formheader .thirdrow > div{
+
+    height: 30px;
+    display: table-cell;
+    vertical-align: middle;
+}
+.formcolumns .secondrow > div{
+    padding-right: 16px;
+}
+.formcolumns .secondrow input[type="text"]{
+
+    width: 100%;
+    text-align: left;
+    border: 1px solid #d9d9d9;
+    border-top: 1px solid #c0c0c0;
+    font-size: 13px;
+    height: 25px;
+    padding: 1px 8px;
+}
+.thirdrow span{
+
+    color: #666;
+    font-family: monospace;
+    font-size: 11px;
+    white-space: pre;
+}
+.submitbutton{
+
+    user-select: none;
+    line-height: 100%;
+    height: 30px;
+    min-width: 120px;
+    float: right;
+    margin: 10px 0;
+    border: 1px solid #3079ed;
+    color: #fff;
+    background-color: #4d90fe;
+    background-image: -webkit-linear-gradient(top,#4d90fe,#4787ed);
+}
+

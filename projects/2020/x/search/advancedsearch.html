@@ -1,21 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Search</title>
+        <title>Advanced Search</title>
+        <link href="./asstyle.css" rel="stylesheet">
     </head>
     <body>
-        <a href="./">Search</a>
-        <a href="./imagesearch.html">Image Search</a>
-        <form action="https://google.com/search">
-            <label for="as_q">all these words:</label>
-            <input type="text" name="as_q" id="as_q">
-            <label for="as_epq">this exact word or phrase:</label>
-            <input type="text" name="as_epq" id="as_epq">
-            <label for="as_oq">any of these words:</label>
-            <input type="text" name="as_oq" id="as_oq">
-            <label for="as_eq">none of these words:</label>
-            <input type="text" name="as_eq" id="as_eq">
-            <input type="submit" value="Google Search">
-        </form>
+        <div id="topbar">
+            <div id="logocontainer">
+                <img src="./img/smalllogo.svg"/>
+            </div>
+            <div class="rightside">
+                <a href="./">Search</a>
+                <a href="./imagesearch.html">Image Search</a>
+
+            </div>
+        </div>
+        <div id="appbar"> 
+            <label style="margin-left:10px"> Advanced Search</label>    
+        </div>
+        <div id="formcontainer">
+            
+            <form action="https://google.com/search">
+                <div class="formheader formcolumns">
+                    <div class="firstrow">
+                        <div>
+                            <label>
+                            Find pages with...
+                            </label>
+                        </div>
+                        
+                    </div>
+                    <div class="secondrow">
+                        &nbsp;
+                    </div>
+                    <div class="thirdrow">
+                        <div>
+                            <label>To do this in the search box</label>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="formitem formcolumns">
+                    <div class="firstrow">
+                        <div>
+                            <label for="as_q">all these words:</label>
+                        </div>
+                        
+                    </div>
+                    <div class="secondrow">
+                        <div>
+                            <input type="text" name="as_q" id="as_q">
+                        </div>
+                        
+                    </div>
+                    <div class="thirdrow">
+                        <div>
+                            Type the important words:  
+                            <span > tricolor rat terrier</span>
+                        </div>
+                    </div>
+                    
+                   
+                </div>
+                <div class="formitem formcolumns">
+                    <div class="firstrow">
+                        <div>
+                            <label for="as_epq">this exact word or phrase:</label>
+                        </div>
+                        
+                    </div>
+                    <div class="secondrow">
+                        <div>
+                            <input type="text" name="as_epq" id="as_epq">
+                        </div>
+                    </div>
+                    <div class="thirdrow">
+                        <div>
+                            Put exact words in quotes: 
+                            <span > "rat terrier"</span>
+                        </div>
+                    </div>
+                   
+                    
+
+                </div>
+                <div class="formitem formcolumns">
+                    <div class="firstrow">
+                        <div>
+                         <label for="as_oq">any of these words:</label>
+                        </div>
+                    </div>
+                    <div class="secondrow">
+                        <div>
+                            <input type="text" name="as_oq" id="as_oq">
+                        </div>
+                        
+                    </div>
+                    <div class="thirdrow">
+                        <div>
+                            Type OR between all the words you want:  
+                            <span > miniature OR standard</span>
+                        </div>
+                    </div>
+                    
+                   
+
+                </div>
+                <div class="formitem formcolumns">
+                    <div class="firstrow">
+                        <label for="as_eq">none of these words:</label>
+                    </div>
+                    <div class="secondrow">
+                        <div>
+                            <input type="text" name="as_eq" id="as_eq">
+                        </div>
+                        
+                    </div>
+                    <div class="thirdrow">
+                        <div>
+                            Put a minus sign just before words you don't want:
+                            <span > -rodent, -"Jack Russell"</span>
+                        </div>
+                    </div>
+                    
+                    
+                </div>
+                <div class="submitcontainer formcolumns">
+                    <div class="firstrow">
+                        &nbsp;
+                    </div>
+                    <div class="secondrow">
+                        <input class="submitbutton" type="submit" value="Google Search">
+                    </div>
+                    <div class="thirdrow">
+                        
+                    </div>
+                    
+                </div>
+                
+            </form>
+        </div>
+        
     </body>
 </html>
