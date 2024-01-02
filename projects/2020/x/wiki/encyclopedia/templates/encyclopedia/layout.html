@@ -11,27 +11,30 @@
     <body>
         <div class="row">
             <div class="sidebar col-lg-2 col-md-3">
-                <h2>Wiki</h2>
+                <h2 class="text-center"><a href="/">Wiki</a></h2>
                 <form method="post" action="{% url 'search' %}">
                     {% csrf_token %}
                     <input type="hidden" name="back" value="{{ request.path }}">
-                    <input class="search" type="text" name="query" placeholder="Search Encyclopedia">
-                    <input type="submit">
+                    <input class="search form-control mb-1" type="text" name="query" placeholder="Search Encyclopedia">
+                    <input class="form-control btn btn-secondary mb-2 btn-sm" type="submit">
                 </form>
                 <div>
                     <a href="{% url 'index' %}">Home</a>
+                    
                 </div>
                 <div>
-                    Create New Page
+                    <a href="{% url 'add' %}">Create new page</a>
                 </div>
                 <div>
-                    Random Page
+                    <a href="/wiki/rand">Random Page</a>
                 </div>
                 {% block nav %}
                 {% endblock %}
             </div>
             <div class="main col-lg-10 col-md-9">
-                {% if error %}<div class="alert alert-danger" role="alert">{{ error | safe}}</div>{% endif %}
+                {% if error %}<div class="alert alert-danger" role="alert">{{ error | safe}}</div>
+                {% elif success %}<div class="alert alert-success" role="alert">{{ success | safe}}</div>
+                {% endif %}
                 {% block body %}
                 {% endblock %}
             </div>

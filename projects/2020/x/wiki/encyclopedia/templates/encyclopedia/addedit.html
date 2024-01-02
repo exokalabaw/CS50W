@@ -1,0 +1,37 @@
+{% extends "encyclopedia/layout.html" %}
+{% load custom_tags %}
+{% block title %}
+    {% if function == "add" %}
+        Create Entry
+    {% elif function == "edit" %}
+        Edit Entry
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+
+<div class="col-md-6 col-sm-10">
+    <h1 class="title">{% if function == "add" %}Create new page {% else %} Edit: {{ title | dashtospace }}{% endif %} page</h1>
+    <div id="formcontainer">
+        <form method="post" action="{% if function == 'add' %}{% url 'add' %}{% elif function == 'edit' %}{% url 'edit' title %}{% endif %}">
+            {% csrf_token %}
+            {% if function == "add" %}
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input class="search form-control" type="text" name="title" placeholder="Title"
+                value="{{ title | dashtospace}}">
+            </div>
+            {% endif %}
+            <div class="form-group">
+                <label for="body">Body (markdown allowed)</label>
+                <textarea class="form-control" rows="10"   name="body" placeholder="Enter details" >{% if function == "edit" and not error%}{{ body | removetitle }}{% else %}{{body}}{% endif %}</textarea>
+
+            </div>
+            <div class="form-group">
+                <button type="submit" class="form-control btn btn-primary">Submit</button>
+            </div>
+            
+        </form>
+    </div>
+</div>
+{% endblock %}

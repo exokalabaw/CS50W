@@ -1,12 +1,13 @@
 {% extends "encyclopedia/layout.html" %}
 {% load custom_tags %}
+
 {% block title %}
-   {{ title | dashtospace }}
+    404 - Page not found
 {% endblock %}
 
 {% block body %}
+    <h1>404 - Page not found</h1>
+
     
-   {{entry | safe}}
-    <a href="{% url 'edit' title %}">edit this entry</a>
 
 {% endblock %}

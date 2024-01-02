@@ -1,4 +1,5 @@
 {% extends "encyclopedia/layout.html" %}
+{% load custom_tags %}
 
 {% block title %}
     Encyclopedia
@@ -9,7 +10,7 @@
 
     <ul>
         {% for entry in entries %}
-            <li><a href="{% url 'entry' entry %}">{{ entry }}</a></li>
+            <li><a href="{% url 'entry' entry %}">{{ entry|dashtospace }}</a></li>
         {% endfor %}
     </ul>
 

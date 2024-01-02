@@ -1,4 +1,5 @@
 {% extends "encyclopedia/layout.html" %}
+{% load custom_tags %}
 
 {% block title %}
     Search
@@ -12,7 +13,7 @@
     <ul>
         
         {% for link in r%}
-                 <li><a href="{% url 'entry' link %}">{{link}}</a>
+                 <li><a href="{% url 'entry' link %}">{{link | dashtospace}}</a>
             
         {% endfor %}
     </ul>
