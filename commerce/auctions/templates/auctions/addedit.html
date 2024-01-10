@@ -1,0 +1,28 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="container  py-4">
+       <div class="row"> 
+            <div class="col-lg-5 col-md-8 col-sm-11 mx-auto">
+            <h2>{{ type }} Listing</h2>
+
+            {% if message %}
+                <div>{{ message }}</div>
+            {% endif %}
+
+            <form action="{% if type == 'Add' %}{% url 'add_listing' %}{% elif type == 'Edit' %}{{ request.path }}{% endif %}" method="post" class="pb-4">
+                {% csrf_token %}
+                <!-- {{ form }} -->
+                {% for field in form.visible_fields %}
+                    <div class="form-group">
+                        {{ field.errors }}
+                        {{ field.label_tag }} {{ field }}
+                    </div>
+                {% endfor %}
+                 
+                <input class="btn btn-primary" type="submit" value="Save"> 
+            </form>
+
+   </div></div>
+    </div>
+{% endblock %}

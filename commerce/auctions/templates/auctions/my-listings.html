@@ -1,0 +1,42 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    
+    <div class="container ">
+    <div class="row py-4">
+        <h2 class="mb-4">{{title}} {% if title == "Category" %} - {{ category }} {% endif %}</h2>
+    </div>
+    <div class="row row-cols-2 row-cols-lg-4">
+        {% for item in items %}
+        <div class="col p-2">
+            <a id="card-{{item.id}}" class="card p-0" href="/listing/{{ item.id }}" >
+                <img src="{% if item.image %}{{item.image}}{% else %}https://dummyimage.com/400x400/fffcff/000&text=AUCTION!{% endif %}" class="card-img-top" />
+                <div class="card-body">
+                    <h4 class="card-title">{{item.title}}</h2>
+                    <p class="card-text">{{item.description | slice:":50"}}...</p>
+                    <span>Posted by: {{item.user_id}}</span>
+                    {% if item.status == "c"%}
+                    <br/><span class="text-danger">this listing is closed</span>
+                    {% endif %}
+                    
+                </div>
+                
+            
+            </a>
+    
+        </div>
+        {% empty %}
+            {% if user.is_authenticated or title == "Category" %}
+                <div class="col-p-2">
+                    <h4>No entries found</h4>
+                </div>
+            {% else %}
+            <div class="col-p-2">
+                <h4>You must be logged in to view this page.</h4>
+            </div>
+            {% endif %}
+       {% endfor %}
+   
+    </div>
+</div>
+{% endblock %}

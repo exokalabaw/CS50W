@@ -1,0 +1,122 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    
+<div id="mainlisting" class="container">
+    <div id="mlt"class="row pb-4">
+        <h2 class="mb-2">{{ item}}</h2>
+        <span><small>Posted by {{ item.user_id }}</small></span><br/>
+        {% for i in item.category.all %}
+        <a href="{% url 'category' i.id %}"><small>{{ i }}</small></a>
+        {% endfor %}
+    </div>
+    {% if item.user_id.id == request.user.id %}
+    <div class="row">
+        <ul class="nav nav-pills pb-4">
+            <li class="nav-item">
+              <a class="btn-secondary btn btn-sm  mr-2" aria-current="page" href="{% url 'edit_listing' item.id %}">Edit</a>
+            </li>
+            <li class="nav-item bg-red">
+              <a class="btn-danger btn btn-sm mr-2" href="{% url 'delete_listing' item.id %}">Delete</a>
+            </li>
+            {% if item.status == "o" %}
+            <li class="nav-item bg-red">
+                <a class="btn-success btn btn-sm " href="{% url 'close_listing' item.id %}">Close Auction</a>
+            </li>
+            {% endif %}
+            
+          </ul>
+    </div>
+    {% endif %}
+    <div id="mld" class="row pb-2">
+        
+        <img src="{% if item.image %}{{item.image}}{% else %}https://dummyimage.com/400x400/fffcff/000&text=AUCTION!{% endif %}"/>
+        <p>{{ item.description}}</p>
+        
+        <span>starting price: {{ item.starting_price }}</span><br/>
+        <span>highest bid: {% if hb %}{{ hb.bid_price }} ( {{ item.bid_set.all.count }} bid{% if item.bid_set.all.count > 1%}s{% endif %} )
+            {% if hb.owner_id == request.user and item.status == "o" %}
+            <span class="text-success">You are currently the highest bidder</span>
+            
+            {% endif %}
+            {% else %}no bids yet{% endif %} </span>
+        
+        
+        <div class="clear"></div>
+    </div>
+    
+    {% if item.status == "o" and request.user.is_authenticated %}
+    <div id="mlcta" class="row w-25 w-sm-100 mx-auto">
+        {% if item.user_id.id == request.user.id %}
+        {% else %}
+        <form method="post" id="bid" action="{% url 'listing' item.id %}">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ bidform }}
+            </div>
+                
+            
+            <button for="bid" class="form-control btn btn-secondary mb-2 btn-sm" type="submit" name="bid">Submit Bid</button>
+        </form>
+        
+        {% if inwatchlist %}
+        <a  href="{% url 'watchlist' id=item.id action='remove' %}" class="form-control btn btn-secondary mb-2 btn-sm">Remove from watchlist</a>
+        
+        {% else %}
+        <a  href="{% url 'watchlist' id=item.id action='add' %}" class="form-control btn btn-secondary mb-2 btn-sm">Add to watchlist</a>
+        {% endif %}
+        
+        
+        {% endif %}
+    {% else %}
+    
+       
+        {% if not request.user.is_authenticated %}
+        <div id="loginfirst" class="row w-100 mx-auto py-2 bg-white">
+            <h5 class="text-secondary text-center my-1">You must log in to bid on auctions.</h5>
+        {% elif request.user.id == hb.owner_id.id %}
+         <div id="autionclosed" class="row w-100 mx-auto py-2 bg-success">
+            <h4 class="text-white text-center my-1">Congratulations, you have won this auction.</h4>
+        {% else %}
+        <div id="autionclosed" class="row w-100 mx-auto py-2 bg-warning">
+        <h4 class="text-white text-center my-1">This auction is now closed </h4>
+        {% endif %}
+     {% endif %}
+        
+    </div>
+    <div id="comments" class="row mt-4 ">
+        <div class="col-lg-8 mx-auto col-sm-12">
+        <h3> Comments </h3>
+        <hr class="my-4"/>
+        {% for comment in item.comment_set.all %}
+        <div class="pb-4">
+            <p>
+            {{ comment.comment_text }}
+            </p>
+            <span class="text-secondary">-{{ comment.author_id }} on {{ comment.comment_date }}</span>
+            {% if comment.author_id.id == request.user.id %}
+            <br/><a href="{% url 'delete_comment' comment.id %}" class="text-secondary"><small>Delete comment</small></a>
+            {% endif %}
+            <hr class="my-4"/>
+            
+        </div>
+        {% empty %}
+        <p>No comments yet.</p>
+        {% endfor %}
+        {% if request.user.is_authenticated %}
+        <h5>Add a comment</h5>
+        <hr class="my-4"/>
+        <form method="post" id="comment" action="{% url 'listing' item.id %}">
+                {% csrf_token %}
+                <div class="form-group">
+                {{ commentform }}
+                </div>
+            <button for="comment" class="form-control btn btn-secondary mb-2 btn-sm" type="submit" name="comment">Submit Comment</button>
+        </form>
+        {% else %}
+        <h5 class="text-secondary">You must log in to comment.</h5>
+        {% endif %}
+    </div>
+    </div>
+</div>
+{% endblock %}

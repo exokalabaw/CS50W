@@ -1,0 +1,12 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<div id="cats" class="container w-25 py-4 text-center">
+    <h1 class="py-2">Categories</h1>
+    {% for item in items|dictsort:"cap" %}
+    <div class="py-1"><h5><a href="{% url 'category' item.id %}">{{ item.name }}</a></h5>
+        
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
