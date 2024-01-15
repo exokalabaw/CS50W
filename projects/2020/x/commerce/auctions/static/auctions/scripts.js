@@ -20,6 +20,7 @@ window.onload = () => {
     }
     const pagealert = document.getElementById('pagealert')
     function killalert(){
+        const pagealert = document.getElementById('pagealert')
         pagealert.remove()
     }
     

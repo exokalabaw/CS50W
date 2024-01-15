@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block body %}
+
     <h2>{{ request.user.email }}</h2>
 
     <button class="btn btn-sm btn-outline-primary" id="inbox">Inbox</button>
@@ -18,7 +19,7 @@
         <h3>New Email</h3>
         <form id="compose-form">
             <div class="form-group">
-                From: <input disabled class="form-control" value="{{ request.user.email }}">
+                From: <input id="compose-sender" disabled class="form-control" value="{{ request.user.email }}">
             </div>
             <div class="form-group">
                 To: <input id="compose-recipients" class="form-control">
@@ -30,6 +31,11 @@
             <input type="submit" class="btn btn-primary"/>
         </form>
     </div>
+
+    <div id="email-view" data-currentuser="{{ request.user.email }}">
+
+    </div>
+    
 {% endblock %}
 
 {% block script %}
