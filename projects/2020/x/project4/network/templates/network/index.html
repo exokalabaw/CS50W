@@ -1,0 +1,41 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <div class="row py-4">
+       <div class="col col-lg-5 col-sm-10 mx-auto">
+            {%if feedtype == "all" %}
+                {% if request.user.is_authenticated%}
+                <div id="post-form" class="">
+                    <form method="post" action="{% url 'poster' %}" class="form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="body">What does everybody need to know today?</label>
+                            <textarea id="body" name="body" class="form-control" rows="3" ></textarea>
+                        </div>
+                        <input class="form-control btn btn-primary" type="submit" value="submit">
+
+                        </textarea>
+                    </form>
+                </div>
+                {% endif %}
+            {% elif feedtype == "user" %}
+                <div>
+                    <div><h2 >{{ username }}</h2><h5 >{{ followers }} followers    {{ followees }} following</h5></div>
+                    {% if not request.user.id == id%}
+                    <form method="post" >
+                        {% csrf_token %}
+                        <input type="hidden" value="{{ id }}"/>
+                        <button class="btn btn-primary py-1">{% if followcheck %}un{% endif %}follow</button>
+                    </form>
+                    {% endif %}
+                <div>
+            {%else%}
+                <div><h2>Following</h2></div>
+            {% endif %}
+            <div id="feed">
+
+            </div>
+       </div>
+       
+    </div>
+{% endblock %}
