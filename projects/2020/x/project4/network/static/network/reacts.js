@@ -132,7 +132,7 @@ function Post({stuff, userid}){
 
             setEditMode(false)
         }catch (error){
-            alert("something went wrong" + error.error)
+            alert("you can't do that to others" )
             setEditMode(false)
         }
         
@@ -166,7 +166,7 @@ function Post({stuff, userid}){
                 </div>
                 :
                 <div>
-                    <textarea onChange={e => setTemp(e.target.value)}>{thePost.post}</textarea>
+                    <textarea rows="3"class="w-100"onChange={e => setTemp(e.target.value)}>{thePost.post}</textarea>
 
                 </div>
                 }

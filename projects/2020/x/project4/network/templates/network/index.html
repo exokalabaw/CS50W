@@ -18,10 +18,10 @@
                     </form>
                 </div>
                 {% endif %}
-            {% elif feedtype == "user" %}
+            {% elif feedtype == "user"  %}
                 <div>
                     <div><h2 >{{ username }}</h2><h5 >{{ followers }} followers    {{ followees }} following</h5></div>
-                    {% if not request.user.id == id%}
+                    {% if not request.user.id == id and request.user.is_authenticated%}
                     <form method="post" >
                         {% csrf_token %}
                         <input type="hidden" value="{{ id }}"/>
