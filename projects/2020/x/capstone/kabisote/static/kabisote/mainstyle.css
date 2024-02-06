@@ -1,0 +1,13 @@
+.answeritem{
+    margin-bottom: 2px;
+}
+.answeritem:hover{
+    cursor: pointer;
+    background-color: #e9ecef;
+}
+.selected{
+    background-color: #dee2e6;
+}
+.answeritem.draggable:hover{
+    cursor: move;
+}

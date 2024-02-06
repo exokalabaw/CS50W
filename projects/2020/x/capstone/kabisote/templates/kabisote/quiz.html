@@ -1,0 +1,19 @@
+{% extends "kabisote/layout.html" %}
+
+{% block body %}
+    <div class="row py-4">
+       <div class="col col-lg-6 col-sm-10 mx-auto">
+            
+            <div id="feed">
+                <h1>{{ quiz.title}}</h1>
+                <small >by <a href="{% url 'routesnid' type='user' id=quiz.owner.id %}">{{ quiz.owner}}</a></small>
+                <div class="pt-2 pb-1">
+                    {{ quiz.description }}
+                </div>
+                <div id="quizapp"></div>
+            </div>
+       </div>
+       
+    </div>
+   
+{% endblock %}
