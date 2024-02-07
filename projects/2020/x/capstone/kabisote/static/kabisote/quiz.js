@@ -26,7 +26,7 @@ function App({ id , b, quizid}){
             <div>
                 <div>
                     <Questions qs={questions}  validated={validated} setValidated={setValidated} results={results} status={status}/>
-                    <button class="btn btn-primary mt-2"  disabled={!validated} onClick={()=>checkResults(questions, quizid, setResults, setStatus)}>Submit</button>
+                    <button class="btn btn-primary mt-2"  disabled={!validated || status != "taking"} onClick={()=>checkResults(questions, quizid, setResults, setStatus)}>Submit</button>
                 </div>        
                 {
                     status == "results" &&
@@ -43,6 +43,8 @@ function App({ id , b, quizid}){
 // subcomponents
 function Questions({qs, setValidated, results, status}){
     const [questions, setQuestions] = React.useState([...qs])
+    
+   
    
     return(
         <div id="questions_container">
@@ -50,12 +52,17 @@ function Questions({qs, setValidated, results, status}){
                 questions.map((q,index)=>
                     {
                       return( 
-                      <div key={q.id} class={status == 'review' ?results.user_answers && results.user_answers[index].correct ? 'correct mb-4':'incorrect mb-4':'mb-4'}>
+                      <div key={q.id} class={status == 'review' ?results.user_answers && results.user_answers[index].correct ? 'correct mt-4 mb-3':'incorrect mt-4 mb-3':'mt-4 mb-3'}>
                         
                         
                         
-                        <h5 class="mb-3">{index + 1 }. {q.question}({q.quiz_type})</h5>
-                        <Possible_answers question_index={index} pa={q.answers} ua={q.user_answer} qt={q.quiz_type} setQuestions={setQuestions} q={questions} setValidated={setValidated}/>
+                        <h5 class="mb-0">{index + 1 }. {q.question}</h5>
+                        <small >({q.quiz_type == "mcma" ? "multiple choice, multiple answer": q.quiz_type == "oa" ? "ordered answer" : q.quiz_type == "mcoa" ? "multiple choice, one answer": "type your answer"}, {q.points} point{q.points != 1 && "s"})</small>
+                        <Possible_answers question_index={index} pa={q.answers} ua={q.user_answer} qt={q.quiz_type} setQuestions={setQuestions} q={questions} setValidated={setValidated} status={status}/>
+                        {
+                            status == "review" && <ViewAnswer index={index} results={results}/>
+                        }
+                        
                       </div>
                       )
                     }
@@ -64,7 +71,7 @@ function Questions({qs, setValidated, results, status}){
         </div>
     )
 }
-function Possible_answers({pa, qt, question_index, setQuestions, ua, q , setValidated}){
+function Possible_answers({pa, qt, question_index, setQuestions, ua, q , setValidated, status}){
     //the answers are the saved answerlist in the order saved
     const [answers, setAnswers] = React.useState([...pa]);
     const [oaLifted, setOaLifted] = React.useState(null);
@@ -87,7 +94,10 @@ function Possible_answers({pa, qt, question_index, setQuestions, ua, q , setVali
     if(qt == "txt"){
         //textbox answer
         return(
-            <input type="text" class="border-gray-500 border p-2 border-gray-500" name={`answer${question_index}`} value={ua[0] == null ? "" : ua[0]} onChange={e=>processInput(e, setQuestions, question_index, q, setValidated)}></input>
+            <div class="pt-2">
+                 <input type="text" disabled={status != "taking"} class="border-gray-500 border p-2 border-gray-500" name={`answer${question_index}`} value={ua[0] == null ? "" : ua[0]} onChange={e=>{status == "taking" && processInput(e, setQuestions, question_index, q, setValidated)}}></input>
+            </div>
+           
         )
     }
     //this is where you ended last night. . . .make two sets of ordered answer questions to check for cross question issues
@@ -97,13 +107,13 @@ function Possible_answers({pa, qt, question_index, setQuestions, ua, q , setVali
         
         //ordered answer 
         return(
-            <div class="reorderer">
+            <div class="reorderer pt-2">
                 
                 {
                     oaOrder.map((a,index)=>{
                         
                         return(
-                            <div key={index} class={`p-2 border border-gray-500 answeritem draggable`} /*data-answerid={a.id}*/  data-questionnumber={question_index} draggable  onDragStart={()=>{setOaLifted(true)}} onDragEnd={e=>{processOA(question_index,index, oaOver, setQuestions, setOaLifted,q, oaOrder)}} onDragOver={e=>{oaOver != index && setOaover(index); e.preventDefault()}}>
+                            <div key={index} class={`p-2 border border-gray-500 answeritem draggable`} /*data-answerid={a.id}*/  data-questionnumber={question_index} draggable={status == "taking" && true}  onDragStart={()=>{setOaLifted(true)}} onDragEnd={e=>{processOA(question_index,index, oaOver, setQuestions, setOaLifted,q, oaOrder)}} onDragOver={e=>{oaOver != index && setOaover(index); e.preventDefault()}}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" fill="currentColor" class="bi bi-grip-vertical me-2 mb-1" viewBox="0 0 16 16">
                                 <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
                                 </svg>{a.possible_answer}
@@ -117,12 +127,12 @@ function Possible_answers({pa, qt, question_index, setQuestions, ua, q , setVali
         //multiple choice multiple one answer functions
         
         return(
-            <div >
+            <div class="pt-2">
                 {
                     answers.map((b,index)=>{
                         
                         return(
-                            <div onClick={()=>{processMCOA(index, setQuestions, question_index, q, b.id, setValidated)}} data-id={b.id} class={`p-2 border border-gray-500 answeritem ${ua[0] == index ? "selected":''}`}>{b.possible_answer}</div>
+                            <div onClick={()=>{status == "taking" && processMCOA(index, setQuestions, question_index, q, b.id, setValidated)}} data-id={b.id} class={`p-2 border border-gray-500 answeritem ${ua[0] == index ? "selected":''}`}>{b.possible_answer}</div>
                         )
                     })
                 }
@@ -131,7 +141,7 @@ function Possible_answers({pa, qt, question_index, setQuestions, ua, q , setVali
     }else if(qt == 'mcma'){
         //multiple choice multiple answer functions
         return(
-            <div >
+            <div class="pt-2">
                 {
                     answers.map((b,index)=>{
                         let selected = false;
@@ -145,7 +155,7 @@ function Possible_answers({pa, qt, question_index, setQuestions, ua, q , setVali
                         })
                         return(
                             
-                                <div onClick={()=>{processMCMA(index, setQuestions, question_index, q, b.id, setValidated)}} class={`p-2 border border-gray-500 answeritem ${selected ? "selected":''}`}  >{b.possible_answer}</div>
+                                <div onClick={()=>{status == "taking" && processMCMA(index, setQuestions, question_index, q, b.id, setValidated)}} class={`p-2 border border-gray-500 answeritem ${selected ? "selected":''}`}  >{b.possible_answer}</div>
                             
                             
                         )
@@ -178,6 +188,46 @@ function Resultsmodal({results, setStatus}){
             </div>
           </div>
     )
+}
+
+function ViewAnswer({index, results}){
+    const [viewAnswer, setViewAnswer] = React.useState(false)
+    if(viewAnswer){
+        const ans = results.user_answers[index].answerstrings
+
+        if(results.user_answers[index].question_type == "oa"){
+            return(
+            
+                <ol class="text-success mt-2">
+                    {
+                        ans.map(f=>{
+                            return(<li class="text-success">{f}</li>)
+                        })
+                    }
+                </ol>
+                )
+        }else{
+            return(
+            
+                <ul class="text-success mt-2">
+                    {
+                        ans.map(f=>{
+                            return(<li class="text-success">{f}</li>)
+                        })
+                    }
+                </ul>
+                )
+        }
+        
+    }else{
+        return(
+            <div>
+                { results.user_answers[index].correct ? <small class="text-success">Correct!</small>:<small class="text-danger">Incorrect</small>}
+                <p onClick={()=>setViewAnswer(true)} class="viewclick"><small>View answer</small></p>
+            </div>
+        )
+    }
+    
 }
 // functions
 // toggle bookmarking of quiz

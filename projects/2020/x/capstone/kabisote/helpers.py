@@ -71,6 +71,12 @@ def sortPossibleAnswers(question):
     for h in question['answers']:
         b.append(h['possible_answer'])
     return b
+def sortCorrectAnswerStrings(question):
+    h = []
+    for n in question['answers']:
+        if n["is_correct"]:
+            h.append(n['possible_answer'])
+    return h
 def findUserAnswer(question_id, answer_items):
     r = []
     for i in answer_items:

@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import Http404
 
 from .models import User, Tag, Quiz, Quiz_item, Answer_item, Quiz_history, Bookmark, Follow
-from .helpers import plok, isowner, validpage, processMCOA, processOA, processTXT, processMCMA, sortAnswerIds, sortPossibleAnswers, findUserAnswer, findUserAnswerIDS
+from .helpers import plok, isowner, validpage, processMCOA, processOA, processTXT, processMCMA, sortAnswerIds, sortPossibleAnswers, findUserAnswer, findUserAnswerIDS, sortCorrectAnswerStrings
 
 # Create your views here.
 
@@ -161,6 +161,7 @@ def checkanswers(request):
             user_answerids = findUserAnswerIDS(question_id, answer_items)
             points = question['points']
             max_score = max_score + points
+            answer_strings = sortCorrectAnswerStrings(question)
     
             if question_type == "txt":
                 correct_answers = sortPossibleAnswers(question)
@@ -177,6 +178,7 @@ def checkanswers(request):
                 user_score = user_score + points
             
             answer_data = {
+                "answerstrings" : answer_strings,
                 "answerids": user_answerids,
                 "answers": user_answers,
                 "question_type": question_type,

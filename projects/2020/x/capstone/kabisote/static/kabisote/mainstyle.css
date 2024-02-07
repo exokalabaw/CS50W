@@ -1,3 +1,20 @@
+body{
+    color: #343a40;
+}
+a, .viewclick{
+    color: #495057;
+    text-decoration: none;
+    opacity: .95;
+    
+}
+.viewclick:hover{
+    cursor: pointer;
+}
+h4 a{
+    color: #343a40;
+    opacity: 1;
+    
+}
 .answeritem{
     margin-bottom: 2px;
 }
@@ -39,5 +56,11 @@
     width: 100%
 }
 h5{
-    font-size:1rem!important;
+    font-size:1.1rem!important;
+}
+#questions_container .answeritem, #questions_container input{
+    font-size: .95rem;
+} 
+small{
+    font-size: .75rem;
 }
