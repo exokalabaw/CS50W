@@ -11,3 +11,33 @@
 .answeritem.draggable:hover{
     cursor: move;
 }
+.modal{
+    background-color: #21252970;
+}
+.block{
+    display: block!important;
+}
+.modal-footer{
+    justify-content: center;
+}
+.incorrect h5{
+    color: #dc3545;
+}
+.correct h5{
+    color: #198754;
+}
+.incorrect .selected, .incorrect .draggable, .incorrect input{
+    border-color: #dc354550!important;
+}
+.correct .selected, .correct .draggable, .correct input{
+    border-color: #19875450!important;
+}
+.bi-grip-vertical{
+    opacity: .5;
+}
+#questions_container input{
+    width: 100%
+}
+h5{
+    font-size:1rem!important;
+}

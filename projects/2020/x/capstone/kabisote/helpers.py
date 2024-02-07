@@ -77,10 +77,18 @@ def findUserAnswer(question_id, answer_items):
         if i['question_id'] == question_id:
             r = i['answers']
     return r
+def findUserAnswerIDS(question_id, answer_items):
+    r = []
+    for i in answer_items:
+        if i['question_id'] == question_id:
+            r = i['answerids']
+    return r
 def processTXT(pa, ua):
-    for a in pa:
-        if a == ua[0]:
-            return True
+    l = len(ua)
+    if l >= 1:
+        for a in pa:
+            if a == ua[0]:
+                return True
     return False
 def processMCOA(ai, ua):
     if ai[0] == ua[0]:
@@ -91,12 +99,21 @@ def processOA(ai, ua):
         if ai[i] != ua[i]:
             return False
     return True
+# this needs fixing
 def processMCMA(ai, ua):
-    for answer in ai:
-        notfound = True
-        for answeru in ua:
-            if answeru == answer:
-                notfound = False
-        if notfound:
-            return False
-    return True
+    #run through all of the possible answers and see if any of the user answers is correct.. if there are none, return
+    
+    kl = len(ai)
+    ul = len(ua)
+    
+    if len(ai) != len(ua):
+        return False
+    else:
+        ai.sort()
+        ua.sort()
+        for i in range(len(ai)):
+            if ai[i] != ua[i]:
+                return False
+        return True
+    
+    

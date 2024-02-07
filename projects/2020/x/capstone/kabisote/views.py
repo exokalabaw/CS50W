@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import Http404
 
 from .models import User, Tag, Quiz, Quiz_item, Answer_item, Quiz_history, Bookmark, Follow
-from .helpers import plok, isowner, validpage, processMCOA, processOA, processTXT, processMCMA, sortAnswerIds, sortPossibleAnswers, findUserAnswer
+from .helpers import plok, isowner, validpage, processMCOA, processOA, processTXT, processMCMA, sortAnswerIds, sortPossibleAnswers, findUserAnswer, findUserAnswerIDS
 
 # Create your views here.
 
@@ -148,6 +148,7 @@ def checkanswers(request):
         savequestions = Quiz_item.objects.filter(quiz_id = quizid)
         questions = [item.answer_key() for item in savequestions]
         # user answers
+        
         answer_items = r['answers']
         max_score = 0
         user_score = 0
@@ -157,6 +158,7 @@ def checkanswers(request):
             question_type = question['quiz_type']
             question_id =  question['id']
             user_answers = findUserAnswer(question_id, answer_items)
+            user_answerids = findUserAnswerIDS(question_id, answer_items)
             points = question['points']
             max_score = max_score + points
     
@@ -166,20 +168,22 @@ def checkanswers(request):
             else:
                 correct_answers = sortAnswerIds(question)
                 if question_type == "mcoa":
-                    correct = processMCOA(correct_answers, user_answers)
+                    correct = processMCOA(correct_answers, user_answerids)
                 elif question_type == "mcma":
-                    correct = processMCMA(correct_answers, user_answers)
+                    correct = processMCMA(correct_answers, user_answerids)
                 elif question_type == "oa":
                     correct = processOA(correct_answers, user_answers)
             if correct:
                 user_score = user_score + points
             
             answer_data = {
+                "answerids": user_answerids,
                 "answers": user_answers,
                 "question_type": question_type,
                 "correct_answers": correct_answers,
-                "quetion_id":question_id,
-                "correct":correct
+                "question_id":question_id,
+                "correct":correct,
+                "points": points
                 
             }
             answerset.append(answer_data)
@@ -189,14 +193,14 @@ def checkanswers(request):
         returnitem = {
             "user_answers":answerset,
             "score_max": max_score,
-            "score_user:": user_score,
+            "score_user": user_score,
             "quiz_id": quizid
-            
         }
+            
         print(returnitem)
         return JsonResponse(returnitem, safe=False)
     else:
-        return JsonResponse({"error":" did not go through"}, safe=False)
+        return JsonResponse({"error":"did not go through"}, safe=False)
 
 
 

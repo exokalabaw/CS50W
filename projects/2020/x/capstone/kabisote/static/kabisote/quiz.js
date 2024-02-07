@@ -2,18 +2,21 @@ const qs = JSON.parse(document.getElementById('quizitems').textContent);
 const ac = mac(qs)
 const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 function App({ id , b, quizid}){
-    const [started, setStarted] = React.useState(false)
+    // pre - before taking the test, taking - taking the test, results - viewing results lightbox, review - review items
+    const [status, setStatus] = React.useState("pre")
     const [questions, setQuestions] = React.useState(ac)
     const bmd = b =='1';
     const [bookmarked, setBookmarked] = React.useState(bmd)
+    const [validated, setValidated] = React.useState(false)
+    const [results, setResults] = React.useState(null)
     
-    if(!started){
+    if(status == "pre"){
         return(
             <div>
                 <div class="pb-2">
                     <small><a href="" onClick={()=>toggleBookmark(setBookmarked, bookmarked, questions[0].quiz_id)}>{bookmarked ? "remove bookmark": "add bookmark"} </a></small>
                  </div> 
-                 <button class="btn btn-primary"onClick={()=>setStarted(true)}>Start quiz</button>
+                 <button class="btn btn-primary"onClick={()=>setStatus("taking")}>Start quiz</button>
             </div>
            
         ) 
@@ -21,26 +24,38 @@ function App({ id , b, quizid}){
     else{
         return(
             <div>
-                <Questions qs={questions} setQs={setQuestions}/>
-                <button class="btn btn-primary mt-2" onClick={()=>checkResults(questions, quizid)}>Submit</button>
-            </div>            
+                <div>
+                    <Questions qs={questions}  validated={validated} setValidated={setValidated} results={results} status={status}/>
+                    <button class="btn btn-primary mt-2"  disabled={!validated} onClick={()=>checkResults(questions, quizid, setResults, setStatus)}>Submit</button>
+                </div>        
+                {
+                    status == "results" &&
+                        
+                        <Resultsmodal results={results} setStatus={setStatus}/>
+                        
+                 }
+            </div> 
         )
     }
         
 }
 
 // subcomponents
-function Questions({qs, setQs}){
+function Questions({qs, setValidated, results, status}){
     const [questions, setQuestions] = React.useState([...qs])
+   
     return(
         <div id="questions_container">
             {
                 questions.map((q,index)=>
                     {
                       return( 
-                      <div key={q.id} class="mb-4">
-                        <h5 class="mb-3">{q.question}({q.quiz_type})</h5>
-                        <Possible_answers question_index={index} pa={q.answers} ua={q.user_answer} qt={q.quiz_type} setQuestions={setQuestions} q={questions}/>
+                      <div key={q.id} class={status == 'review' ?results.user_answers && results.user_answers[index].correct ? 'correct mb-4':'incorrect mb-4':'mb-4'}>
+                        
+                        
+                        
+                        <h5 class="mb-3">{index + 1 }. {q.question}({q.quiz_type})</h5>
+                        <Possible_answers question_index={index} pa={q.answers} ua={q.user_answer} qt={q.quiz_type} setQuestions={setQuestions} q={questions} setValidated={setValidated}/>
                       </div>
                       )
                     }
@@ -49,7 +64,7 @@ function Questions({qs, setQs}){
         </div>
     )
 }
-function Possible_answers({pa, qt, question_index, setQuestions, ua, q}){
+function Possible_answers({pa, qt, question_index, setQuestions, ua, q , setValidated}){
     //the answers are the saved answerlist in the order saved
     const [answers, setAnswers] = React.useState([...pa]);
     const [oaLifted, setOaLifted] = React.useState(null);
@@ -60,7 +75,7 @@ function Possible_answers({pa, qt, question_index, setQuestions, ua, q}){
     React.useEffect(()=>{
         if(qt == "oa" && oaLifted != true){
             if(oaLifted == null){
-                initOaorder(answers, setOaorder)
+                initOaorder(answers, setOaorder, setQuestions, q, question_index)
             }else if(oaLifted == false){
                 rearrangeOaOder( answers, setOaorder, ua )
             }
@@ -72,20 +87,26 @@ function Possible_answers({pa, qt, question_index, setQuestions, ua, q}){
     if(qt == "txt"){
         //textbox answer
         return(
-            <input type="text" class="border-gray-500 border" name={`answer${question_index}`} value={ua[0] == null ? "" : ua[0]} onChange={e=>processInput(e, setQuestions, question_index, q)}></input>
+            <input type="text" class="border-gray-500 border p-2 border-gray-500" name={`answer${question_index}`} value={ua[0] == null ? "" : ua[0]} onChange={e=>processInput(e, setQuestions, question_index, q, setValidated)}></input>
         )
     }
     //this is where you ended last night. . . .make two sets of ordered answer questions to check for cross question issues
     //list down what happens when you run the function to re order the oas after an item is dragged to another spot
     else if(qt=="oa"){
+       
+        
         //ordered answer 
         return(
-            <div>
+            <div class="reorderer">
+                
                 {
                     oaOrder.map((a,index)=>{
+                        
                         return(
-                            <div key={index} class={`p-2 border border-gray-500 answeritem draggable`} data-answerid={a.id}  data-questionnumber={question_index} draggable  onDragStart={()=>{setOaLifted(true)}} onDragEnd={e=>{processOA(e,index, oaOver, setQuestions, setOaLifted,q, oaOrder)}} onDragOver={e=>{oaOver != index && setOaover(index); e.preventDefault()}}>
-                                {a.possible_answer}
+                            <div key={index} class={`p-2 border border-gray-500 answeritem draggable`} /*data-answerid={a.id}*/  data-questionnumber={question_index} draggable  onDragStart={()=>{setOaLifted(true)}} onDragEnd={e=>{processOA(question_index,index, oaOver, setQuestions, setOaLifted,q, oaOrder)}} onDragOver={e=>{oaOver != index && setOaover(index); e.preventDefault()}}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" fill="currentColor" class="bi bi-grip-vertical me-2 mb-1" viewBox="0 0 16 16">
+                                <path d="M7 2a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0M7 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-3 3a1 1 0 1 1-2 0 1 1 0 0 1 2 0m3 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+                                </svg>{a.possible_answer}
                             </div>
                         )
                     })
@@ -94,14 +115,14 @@ function Possible_answers({pa, qt, question_index, setQuestions, ua, q}){
         )
     }else if(qt=="mcoa"){
         //multiple choice multiple one answer functions
-
+        
         return(
             <div >
                 {
                     answers.map((b,index)=>{
                         
                         return(
-                            <div onClick={()=>{processMCOA(index, setQuestions, question_index, q)}}data-id={b.id} class={`p-2 border border-gray-500 answeritem ${ua[0] == index ? "selected":''}`}>{b.possible_answer}</div>
+                            <div onClick={()=>{processMCOA(index, setQuestions, question_index, q, b.id, setValidated)}} data-id={b.id} class={`p-2 border border-gray-500 answeritem ${ua[0] == index ? "selected":''}`}>{b.possible_answer}</div>
                         )
                     })
                 }
@@ -124,7 +145,7 @@ function Possible_answers({pa, qt, question_index, setQuestions, ua, q}){
                         })
                         return(
                             
-                                <div onClick={()=>{processMCMA(index, setQuestions, question_index, q)}} class={`p-2 border border-gray-500 answeritem ${selected ? "selected":''}`}  >{b.possible_answer}</div>
+                                <div onClick={()=>{processMCMA(index, setQuestions, question_index, q, b.id, setValidated)}} class={`p-2 border border-gray-500 answeritem ${selected ? "selected":''}`}  >{b.possible_answer}</div>
                             
                             
                         )
@@ -137,6 +158,27 @@ function Possible_answers({pa, qt, question_index, setQuestions, ua, q}){
 
 }
 
+function Resultsmodal({results, setStatus}){
+    console.log('results in modal : ' +results)
+    return (
+        <div class="modal block"  >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content text-center">
+
+                <div class="modal-body py-5" id="resultviewer" >
+                <h5>Your score is :</h5> <br/><h3>{results.score_user}/{results.score_max}</h3>
+                    
+                </div>
+                <div class="modal-footer ">
+                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="reviewBtn" onClick={()=>setStatus("review")}>Review answers</button>
+                  
+                  <a type="button" class="btn btn-primary" href={`/quiz/${results.quiz_id}`}>Exit </a>
+                </div>
+              </div>
+            </div>
+          </div>
+    )
+}
 // functions
 // toggle bookmarking of quiz
 async function toggleBookmark(a, b, c){
@@ -158,7 +200,8 @@ function mac(c){
     c.forEach(k=>{
         const q = {
             ...k,
-            user_answer: []
+            user_answer: [],
+            user_answerid:[]
         }
         catched.push(q);
     })
@@ -166,50 +209,65 @@ function mac(c){
 }
 
 //process input
-function processInput(e, setQuestions, question_index, q){
+function processInput(e, setQuestions, question_index, q, setValidated){
     let b =[...q] ;
     b[question_index].user_answer = [e.target.value];
+    const validated = validateForm(q)
+    setValidated(validated)
     setQuestions(b)
 }
-function processMCOA(answered_index, setQuestions,question_index,q){
+function processMCOA(answered_index, setQuestions,question_index,q, id, setValidated){
     let g = [...q];
+    
     g[question_index].user_answer = [answered_index];
+    g[question_index].user_answerid = [id]
     setQuestions(g)
+    const validated = validateForm(q)
+    setValidated(validated)
 
 }
-function processMCMA(answered_index, setQuestions,question_index,q){
+function processMCMA(answered_index, setQuestions,question_index,q, id, setValidated){
     let h = [...q];
     let savedAnswers = h[question_index].user_answer;
+    let savedIds = h[question_index].user_answerid;
+    //check wether use clicked on new answer or chosen answer
     let newAnswer = true;
+    //if the answered index matches the current iteration, it's not a new answer.. it should be removed
     function filterAnswer(pa){
         if(pa == answered_index){
             newAnswer = false;
         }
         return pa != answered_index;
     }
+    function filterid(k){
+        return k != id
+    }
     let newset = savedAnswers.filter(filterAnswer)
+    let newid = savedIds.filter(filterid)
     if (newAnswer){
         newset.push(answered_index)
+        newid.push(id)
     }
     h[question_index].user_answer = newset;
+    h[question_index].user_answerid = newid;
     setQuestions(h);
+    const validated = validateForm(q)
+    setValidated(validated)
 
 }
 
 function processOA(e,index, oaOver, setQuestions, setOaLifted,q, oaOrder){
     // make a simple array of the order of answer ids 
-    let idarray = []
+    let indexarray = []
     oaOrder.forEach(g=>{
-        idarray.push(g.id)
+        indexarray.push(g.id)
     })
-    const newArrayOrder = reorderArray(index, oaOver, idarray)
-    const questionIndex = e.target.dataset['questionnumber']
+    const newArrayOrder = reorderArray(index, oaOver, indexarray)
+    const questionIndex = e
     const questions = [...q]
     questions[questionIndex].user_answer = newArrayOrder;
 
-    // splice the array so that the order is change according to the drop event
-    // set questions so that the answer to the specific question id saves the new array order from last step
-    // set oalifted to false so that the react will rearrange the items 
+
     setOaLifted(false)
     setQuestions(questions)
 }
@@ -227,7 +285,7 @@ function rearrangeOaOder(answers, setOaorder, ua){
 
 
 // 
-function initOaorder(answers, setOaorder){
+function initOaorder(answers, setOaorder, setQuestions, q, questionIndex){
     // if pa is empty just go through the answers.. if it isn't re make an array with the re arranged items
     let newOrder = []
         answers.forEach(f=>{
@@ -237,16 +295,15 @@ function initOaorder(answers, setOaorder){
             }
             newOrder.push(a)
         })
-            // let tempo = [];
-            // pa.forEach(p=>{
-            //     newOrder.forEach(n=>{
-            //         if(p.id == n.id){
-            //             tempo.push(n)
-            //         }
-            //     })  
-            // })
-            // newOrder = tempo;
+        let fakeUserAnswers = []
+        
         const b = shuffleArray(newOrder);
+        b.forEach(k=>{
+            fakeUserAnswers.push(k.id)
+        })
+        const questions = [...q]
+        questions[questionIndex].user_answer = fakeUserAnswers;
+        setQuestions(questions)
         setOaorder(b);
 }
 
@@ -274,21 +331,35 @@ function reorderArray(index, destination, array){
     }
     return array;
 }
+//validate form
+function validateForm(q){
+    let validated = true
+    q.forEach(t=>{
+        if (validated && t.quiz_type != "oa"){
+                const ar = t.user_answer;
+                if(ar.length == 0 ){
+                    validated = false;
+                }
+        }
+       
+    })
+    return validated
+}
 //check answer results
-async function checkResults(questions, quizid){
+async function checkResults(questions, quizid, setResults, setStatus){
     const body = {"quizid": quizid}
     const ans = [];
     questions.forEach(g=>{
         const a = {
             question_id:g.id,
-            answers: g.user_answer
+            answers: g.user_answer,
+            answerids: g.user_answerid
         }
+        
         ans.push(a)
     })
-    console.log("quiz id is "+ quizid)
     body["answers"] = ans
     const strfied = JSON.stringify(body)
-    console.log(strfied)
     const request = new Request(
         '/checkanswers',
         {
@@ -303,6 +374,8 @@ async function checkResults(questions, quizid){
     const response =  await fetch(request)
     const result = await response.json()
     console.log(result)
+    setResults(result)
+    setStatus("results")
     //extract user answers from questions props
     
 
