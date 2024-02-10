@@ -1,0 +1,40 @@
+{% extends "kabisote/layout.html" %}
+
+{% block body %}
+    <div class="row py-4">
+       <div class="col col-lg-6 col-sm-10 mx-auto">
+            
+            <div id="addedit">
+             
+                <h1>{{ type }} Quiz</h1>
+                {% if message %}
+                <div>{{ message }}</div>
+                    {% endif %}
+                <form action="{% if type == 'Add' %}{% url 'add' %}{% elif type == 'Edit' %}{{ request.path }}{% endif %}" method="post"  class="pt-2 pb-1">
+                    {% csrf_token %}
+                    {% for field in form.visible_fields %}
+                    <div class="form-group wrapper-{{field.name}} mb-2">
+                        {{ field.errors }}
+                        {{ field.label_tag }} 
+                        {{ field }}
+                        
+
+                    </div>
+                    
+                {% endfor %}
+                {% if type == "Edit" %}
+                    <div class="form-group wrapper-tag mb-2">
+                    
+                        <label for="id_tag">Category:</label> 
+                        <input type="text" value="{{tags}}" name="tag" placeholder="separate categories with a comma" class="form-control" id="id_tag">
+                    </div>
+                {%endif%}
+                <input class="btn btn-primary mt-2" type="submit" value="Save"> 
+                </form>
+                
+            </div>
+       </div>
+       
+    </div>
+   
+{% endblock %}

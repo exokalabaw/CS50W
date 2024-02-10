@@ -6,10 +6,10 @@ function App({user, type, id}){
     const [hasPrev, setHasPrev] = React.useState(false)
     const [lastPage, setLastPage] = React.useState(null)
     const [pageNumber, setPageNumber] = React.useState(1)
+    const [loading, setLoading] = React.useState(true)
     
 
     async function load_feed(){
-        console.log('is this firing')
         let p;
         if(id){
             p = await fetch(`/j/${type}/${id}?page=${pageNumber}`)
@@ -17,25 +17,31 @@ function App({user, type, id}){
         }else{
             p = await fetch(`/j/${type}?page=${pageNumber}`)
         }
-        console.log('p is : '+ p)
         const i = await p.json();
-        console.log(`i is ${i}`);
         setItems(i.posts)
         setHasNext(i.has_next)
         setHasPrev(i.has_previous)
         setLastPage(i.end)
+        if(loading){
+            setLoading(false)
+        }
+        
     }
 
     React.useEffect(()=>{
         load_feed();
     },[pageNumber])
-
-    if(items.length !=0){
+    if(loading){
+        return (
+            <div><h5>Loading . . . </h5></div>
+        )
+    }
+    else if(items.length !=0){
         return(
             <div>
                 {
                     items.map(i=>
-                        <QuizItem id={id} key={i.id} stuff={i}/>
+                        <QuizItem id={id} key={i.id} stuff={i} type={type}/>
                     )
                 }
                 {!hasPrev && !hasNext ? null:
@@ -60,8 +66,9 @@ function App({user, type, id}){
 
 }
 
-function QuizItem({stuff, id}){
+function QuizItem({stuff, id, type}){
     const [userId, setUserId] = React.useState(id)
+    const [bookmarked, setBookmarked] = React.useState(stuff.bookmarked)
     const [thePost, setThePost] = React.useState({
         id: stuff.id,
         owner: stuff.owner,
@@ -70,15 +77,17 @@ function QuizItem({stuff, id}){
         tags: stuff.tags,
         post: stuff.description,
         title: stuff.title
-
     })
-    console.log(thePost)
     return(
         <div class="border p-3 my-2">
             <h4><a href={`/quiz/${thePost.id}`}>{thePost.title}</a></h4>
             <small>by <a href={`/quizzes/user/${stuff.owner}`}>{thePost.username}</a></small><br/>
             <small>updated : {thePost.updated}<br/>
-            <a href="">Bookmark </a>
+            {
+            type == "bookmarked"?<a a href="" onClick={(e)=>toggleBookmark(setBookmarked, bookmarked, thePost.id, e)}>{bookmarked ? "remove bookmark": "add bookmark"} </a>:<a onClick={(e)=>toggleBookmark(setBookmarked, bookmarked, thePost.id, e)}>{bookmarked ? "remove bookmark": "add bookmark"} </a>
+            
+            }
+            
            
             </small>
             <div class="mt-2">
@@ -92,13 +101,29 @@ function QuizItem({stuff, id}){
                 }
             </small>
             <div>
-            <a class="me-2" href="">Go to quiz</a>
+            <a class="me-2" href={`/quiz/${thePost.id}`}>Go to quiz</a>
             {
-                thePost.owner == userId ? <a href="">Edit </a>:null 
+                thePost.owner == userId ? <a href={`/edit/${thePost.id}`}>Edit </a>:null 
             }
             </div>
             
         </div>
     )
 
+}
+// toggle bookmarking of quiz
+async function toggleBookmark(a, b, c, d){
+    let bookmarked = b ? true : false;
+    try {
+        const response = await fetch(`/tb/${bookmarked}/${c}`)
+        const j = await response.json()
+        if (!response.ok || j.update == "error"){
+            throw new Error(response.statusText)
+        }
+        a(b? false:true)
+        d.preventDefault()
+    }catch(error){
+        alert("temporary error")
+    }
+    
 }

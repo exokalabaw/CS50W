@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+
 class User(AbstractUser):
     pass
 
@@ -16,8 +17,8 @@ class Quiz(models.Model):
     description = models.TextField(blank=True)
     private = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True)
-    created = models.DateTimeField(auto_now_add=True, blank=True)
-    tag = models.ManyToManyField(Tag, related_name="tags")
+    created = models.DateTimeField(auto_now_add=True)
+    tag = models.ManyToManyField(Tag, related_name="tags", blank=True)
     
     class Meta:
         ordering = ['-updated']
@@ -29,7 +30,6 @@ class Quiz(models.Model):
                 "tag": t.name
             }
             tags.append(k)
-        print(tags)
     
         return{
             "id": self.id,
@@ -41,6 +41,15 @@ class Quiz(models.Model):
             "tags":tags,
             "description": self.description,
         }
+    def tagsastext(self):
+        tags = ""
+        for b in self.tag.all():
+            if tags == "":
+                tags += b.name
+            else:
+                tags += f", {b.name}"
+        return tags
+        
     
     def __str__(self):
         return f"{self.title} by {self.owner}"

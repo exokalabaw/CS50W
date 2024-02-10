@@ -6,11 +6,18 @@
             
             <div id="feed">
                 <h1>{{ quiz.title}}</h1>
+                {% if type == "quiz" %}
                 <small >by <a href="{% url 'routesnid' type='user' id=quiz.owner.id %}">{{ quiz.owner}}</a></small>
+                {% endif %}
                 <div class="pt-2 pb-1">
                     {{ quiz.description }}
                 </div>
+                {% if type == "quiz" %}
                 <div id="quizapp" class="mb-2"></div>
+                {% elif type == "edit"%}
+                <a href="/edit-details/{{ quiz.id }}">Edit quiz details</a>
+                <div id="editapp" class="mb-2"></div>
+                {% endif %}
             </div>
        </div>
        

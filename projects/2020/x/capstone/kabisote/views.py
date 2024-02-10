@@ -3,13 +3,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import Http404
 
 from .models import User, Tag, Quiz, Quiz_item, Answer_item, Quiz_history, Bookmark, Follow
-from .helpers import plok, isowner, validpage, processMCOA, processOA, processTXT, processMCMA, sortAnswerIds, sortPossibleAnswers, findUserAnswer, findUserAnswerIDS, sortCorrectAnswerStrings
+from .forms import QuizForm, QuizEditForm
+from .helpers import plok, isowner, validpage, processMCOA, processOA, processTXT, processMCMA, sortAnswerIds, sortPossibleAnswers, findUserAnswer, findUserAnswerIDS, sortCorrectAnswerStrings, returnTagIds, processSave
 
 # Create your views here.
 
@@ -67,6 +68,29 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "kabisote/register.html")
+#add and edit quiz page views
+def add(request):
+    if request.method == "POST":
+        return processSave(request)
+    else:
+
+        form = QuizForm()
+        f = { "form" : form , "type" : "Add", "user_id": request.user.id} 
+        return render(request, "kabisote/addedit.html", f)
+def editdetails(request, id):
+    if request.method == "POST":
+        return processSave(request)
+    else:
+        quizs = Quiz.objects.filter(pk=id)
+        form = QuizEditForm(instance=quizs[0])
+        k = quizs[0].tagsastext()
+    
+        f = { "form" : form ,"tags":k, "type" : "Edit", "user_id": request.user.id} 
+        return render(request, "kabisote/addedit.html", f)
+def edit(request, id):
+    quiz = Quiz.objects.get(pk=id)
+    return render(request, "kabisote/quiz.html", {"type":"edit", "quiz":quiz})
+#questions and answers api
 # teaser pages    
 # pagetypes are public, user, bookmarked, tag, following
 def api(request, type):

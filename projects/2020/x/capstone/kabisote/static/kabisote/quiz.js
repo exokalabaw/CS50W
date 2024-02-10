@@ -14,7 +14,7 @@ function App({ id , b, quizid}){
         return(
             <div>
                 <div class="pb-2">
-                    <small><a href="" onClick={()=>toggleBookmark(setBookmarked, bookmarked, questions[0].quiz_id)}>{bookmarked ? "remove bookmark": "add bookmark"} </a></small>
+                    <small><a href="" onClick={()=>toggleBookmark(setBookmarked, bookmarked, quizid)}>{bookmarked ? "remove bookmark": "add bookmark"} </a></small>
                  </div> 
                  <button class="btn btn-primary"onClick={()=>setStatus("taking")}>Start quiz</button>
             </div>

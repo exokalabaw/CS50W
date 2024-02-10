@@ -1,6 +1,8 @@
 from .models import Tag, Quiz, Bookmark, Follow
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
+from .forms import QuizForm, QuizEditForm
+from django.shortcuts import render, redirect
 
 
 def isowner(owner, currentuser):
@@ -38,6 +40,7 @@ def plok(request, ptid, pagetype):
         g = tagged.tags.all()
         qs = g
 
+    
         
 
     paginator = Paginator(qs, 10)
@@ -47,6 +50,10 @@ def plok(request, ptid, pagetype):
     has_previous = page_obj.has_previous()
     end_index = paginator.num_pages
     plists = [quiz.serialize() for quiz in page_obj]
+    for p in plists:
+        bookmarked = Bookmark.objects.filter(quiz_id=p['id'], owner=request.user.id).count()
+        p['bookmarked']=bookmarked
+    print(plists)
     r = {'posts':plists,'has_next':has_next,'has_previous':has_previous,'end':end_index}
     return r
 
@@ -121,5 +128,50 @@ def processMCMA(ai, ua):
             if ai[i] != ua[i]:
                 return False
         return True
-    
-    
+#for when the user adds or edits the category field in a quiz
+def returnTagIds(t):
+    inputarray = []
+    idarray = []
+    namearray = []
+    newnames = []
+    newids = []
+    res = [word.strip().lower() for word in t.split(",")]
+    print(f"res is {res}")
+    tagsreturn = Tag.objects.filter(name__in=res)
+    for h in res:
+        inputarray.append(h)
+    for tag in tagsreturn:
+        idarray.append(tag.id)
+        namearray.append(tag.name)
+    for k in inputarray:
+        if k not in namearray:
+            newnames.append(k)
+            new = Tag(name=k)
+            new.save()
+            idarray.append(new.id)
+
+    return idarray
+
+def processSave(request):
+    p = request.POST
+        # copy the querydict to make it mutable
+    g = p.copy()
+    # since the form can't validate on the input values, even on empty input, remove the tag attribute
+    g.pop('tag')
+    # empty array for tag numbers
+    tagarray = []
+    # if the user input something on the field
+    if p['tag']:
+        # custom function to check on each of the comma separated values exist, if not, create, and then return a list of ids
+        tagarray = returnTagIds(p['tag'])
+        g['tag'] = tagarray
+    # you can now return a form that will validate
+    returndata = QuizForm(g)
+    # f = { "form" : returndata , "type" : "Add", "user_id": request.user.id} 
+    if returndata.is_valid():
+        s = returndata.save(commit=False)
+        s.owner_id = request.user.id
+        s.save()
+        returndata.save_m2m()
+        form  = QuizForm(instance=s)
+    return redirect(f"/edit/{s.id}?success=saved")
