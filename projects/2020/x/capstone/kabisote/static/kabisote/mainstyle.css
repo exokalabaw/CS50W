@@ -70,3 +70,82 @@ small{
 .form-group label{
     margin-bottom: 10px;
 }
+#myanswers > div, #addlinks, .formbox{
+    border: 1px solid #ced4da;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 10px;
+    position: relative;
+
+}
+ #addlinks{
+    padding-bottom: .75rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+#myanswers h5{
+    margin-bottom: 0;
+}
+
+small{
+    opacity: .65
+}
+.subdetails
+{
+    display: block;
+    margin-bottom: .2rem;
+}
+.txtanscontainer{
+    position: relative;
+}
+.xer{
+    position: absolute;
+    right: -5px;
+    top: -5px;
+    display: block;
+    width: 15px;
+    height: 15px;
+    line-height: 15px;
+    color: #ffffff;
+    text-align: center;
+    font-size: 10px;
+    border-radius: 3px  ;
+}
+.mcanscontainer{
+    padding: 0.75rem;
+    margin-bottom: 1.5rem;
+    border-radius: 10px;
+    position: relative;
+    border:1px solid #ced4da;
+}
+.mcanscontainer label{
+    font-size: small;
+    margin-bottom: 0;
+    
+}
+.txtanscontainer > span:hover{
+    cursor: pointer;
+}
+btn.addmore{
+    font-size: .7rem;
+    padding: 0.2rem 0.3rem;
+    border: 1px solid #ced4da;
+}
+.multiradio{
+    height: 10px;
+}
+.btn-white {
+    background-color: #ffff;
+    border: 0px;
+}
+.btn-white:hover{
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    opacity: .8;
+}
+.oaanscontainer{
+    position: relative;
+}
+.oaol{
+    padding-left: 1rem;
+}

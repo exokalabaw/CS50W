@@ -14,7 +14,8 @@ function App({ id , b, quizid}){
         return(
             <div>
                 <div class="pb-2">
-                    <small><a href="" onClick={()=>toggleBookmark(setBookmarked, bookmarked, quizid)}>{bookmarked ? "remove bookmark": "add bookmark"} </a></small>
+                    <small><a onClick={()=>toggleBookmark(setBookmarked, bookmarked, quizid)}>{bookmarked ? "remove bookmark": "add bookmark"} </a></small>
+                    
                  </div> 
                  <button class="btn btn-primary"onClick={()=>setStatus("taking")}>Start quiz</button>
             </div>
@@ -74,6 +75,7 @@ function Questions({qs, setValidated, results, status}){
 function Possible_answers({pa, qt, question_index, setQuestions, ua, q , setValidated, status}){
     //the answers are the saved answerlist in the order saved
     const [answers, setAnswers] = React.useState([...pa]);
+    //lifted is when the user picks the item up via drag action
     const [oaLifted, setOaLifted] = React.useState(null);
     const [oaOver, setOaover] = React.useState(null);
     //oaorder is the ordered array of answers that includes the answer text, ids etc
@@ -358,7 +360,7 @@ function initOaorder(answers, setOaorder, setQuestions, q, questionIndex){
 }
 
 //shuffle array function for first time loading of oa items
-        function shuffleArray(array){
+function shuffleArray(array){
             for (let i = array.length - 1; i > 0; i--) {
               const j = Math.floor(Math.random() * (i + 1));
               const temp = array[i];

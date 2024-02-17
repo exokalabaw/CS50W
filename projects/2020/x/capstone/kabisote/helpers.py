@@ -112,18 +112,18 @@ def processOA(ai, ua):
         if ai[i] != ua[i]:
             return False
     return True
-# this needs fixing
 def processMCMA(ai, ua):
-    #run through all of the possible answers and see if any of the user answers is correct.. if there are none, return
+   
     
     kl = len(ai)
     ul = len(ua)
-    
+    # check if the number of possible answers and user answers are the same
     if len(ai) != len(ua):
         return False
     else:
         ai.sort()
         ua.sort()
+        # since both sets are arranged, compare one by one
         for i in range(len(ai)):
             if ai[i] != ua[i]:
                 return False
@@ -152,7 +152,7 @@ def returnTagIds(t):
 
     return idarray
 
-def processSave(request):
+def processSave(request, id):
     p = request.POST
         # copy the querydict to make it mutable
     g = p.copy()
@@ -170,6 +170,10 @@ def processSave(request):
     # f = { "form" : returndata , "type" : "Add", "user_id": request.user.id} 
     if returndata.is_valid():
         s = returndata.save(commit=False)
+        if id:
+            q = Quiz.objects.get(pk=id)
+            s.created = q.created
+            s.id = id
         s.owner_id = request.user.id
         s.save()
         returndata.save_m2m()

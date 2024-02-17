@@ -84,6 +84,14 @@
     <script type="text/babel">
       ReactDOM.render(<App id={`{{request.user.id}}`} b = {`{{ bookmarked }}`} quizid={`{{ quiz.id }}`}/>, document.querySelector("#quizapp"));
    </script>
+   {% elif script == "editquiz"%}
+   {{ quizitems | json_script:"quizitems"}}
+   {% csrf_token %}
+   <script src="{% static 'kabisote/editquiz.js' %}" type="text/babel"></script>
+
+    <script type="text/babel">
+      ReactDOM.render(<App id={`{{request.user.id}}`}  quizid={`{{ quiz.id }}`}/>, document.querySelector("#editapp"));
+   </script>
    {% endif %}
      
 </html>

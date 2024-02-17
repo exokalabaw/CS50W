@@ -17,7 +17,7 @@ class Quiz(models.Model):
     description = models.TextField(blank=True)
     private = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, blank=True)
     tag = models.ManyToManyField(Tag, related_name="tags", blank=True)
     
     class Meta:
@@ -85,6 +85,20 @@ class Quiz_item(models.Model):
             "quiz_type": self.quiz_type,
             "points": self.points,
             "answers":k
+        }
+    def serializeForEdit(self):
+        b = []
+        for i in self.answer_item_set.all():
+            d = i.answer_key()
+            b.append(d)
+        return{
+            "id":self.id,
+            "question": self.question,
+            "quiz_id": self.quiz.id,
+            "question_number": self.question_number,
+            "quiz_type": self.quiz_type,
+            "points": self.points,
+            "answers":b
         }
     def answer_key(self):
         j = []

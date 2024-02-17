@@ -30,6 +30,9 @@
                     </div>
                 {%endif%}
                 <input class="btn btn-primary mt-2" type="submit" value="Save"> 
+                {% if type == "Edit" %}
+                <a href="{% url 'edit' id %}" class="btn btn-secondary mt-2">Go Back</a>
+                {% endif %}
                 </form>
                 
             </div>

@@ -11,6 +11,7 @@ urlpatterns = [
     path("add", views.add, name="add"),
     path("edit-details/<int:id>", views.editdetails, name="editdetails"),
     path("edit/<int:id>", views.edit, name="edit"),
+    path("delete/<int:id>", views.delete, name="delete"),
     path("j/<slug:type>/<int:id>", views.apiwid , name="apiwid"),
     path("j/<slug:type>", views.api , name="api"),
     path("quizzes/<slug:type>", views.routes,name="routes" ),

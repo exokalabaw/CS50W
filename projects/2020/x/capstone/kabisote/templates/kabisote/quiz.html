@@ -7,16 +7,30 @@
             <div id="feed">
                 <h1>{{ quiz.title}}</h1>
                 {% if type == "quiz" %}
-                <small >by <a href="{% url 'routesnid' type='user' id=quiz.owner.id %}">{{ quiz.owner}}</a></small>
+                <small class="subdetails">by <a href="{% url 'routesnid' type='user' id=quiz.owner.id %}">{{ quiz.owner}}</a></small>
                 {% endif %}
-                <div class="pt-2 pb-1">
+              
+                
+                <small class="subdetails">categor{% if quiz.tag.all.count == 1 %}y{% else %}ies{% endif %}: 
+                {% for tag in quiz.tag.all %}
+                <a class="my-1"href="{% url 'routesnid' type='tag' id=tag.id%}">{{tag.name}}</a>{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+                 </small> 
+                 {% if request.user.id == quiz.owner.id %}{% if type == "quiz"%}
+                 <small class="subdetails"> <a class="text-white btn btn-secondary mt-2 btn-sm" href="{% url 'edit' quiz.id %}">edit</a></small>
+                 {% endif %}
+                 {% endif %}
+                <div class="py-1">
                     {{ quiz.description }}
                 </div>
                 {% if type == "quiz" %}
                 <div id="quizapp" class="mb-2"></div>
                 {% elif type == "edit"%}
-                <a href="/edit-details/{{ quiz.id }}">Edit quiz details</a>
+                <a class="btn btn-secondary mt-2 btn-sm" href="{% url 'editdetails' quiz.id%}">Edit details</a>
+        
                 <div id="editapp" class="mb-2"></div>
+                <a class="btn btn-primary mt-2" href="{% url 'quiz' quiz.id%}">Go to quiz</a>
+                <a class="btn btn-danger mt-2" href="/delete/{{ quiz.id }}">Delete</a>
                 {% endif %}
             </div>
        </div>

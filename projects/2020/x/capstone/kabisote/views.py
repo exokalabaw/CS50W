@@ -7,7 +7,6 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import Http404
-
 from .models import User, Tag, Quiz, Quiz_item, Answer_item, Quiz_history, Bookmark, Follow
 from .forms import QuizForm, QuizEditForm
 from .helpers import plok, isowner, validpage, processMCOA, processOA, processTXT, processMCMA, sortAnswerIds, sortPossibleAnswers, findUserAnswer, findUserAnswerIDS, sortCorrectAnswerStrings, returnTagIds, processSave
@@ -71,25 +70,39 @@ def register(request):
 #add and edit quiz page views
 def add(request):
     if request.method == "POST":
-        return processSave(request)
+        return processSave(request, None)
     else:
 
         form = QuizForm()
         f = { "form" : form , "type" : "Add", "user_id": request.user.id} 
         return render(request, "kabisote/addedit.html", f)
 def editdetails(request, id):
-    if request.method == "POST":
-        return processSave(request)
+    quizs = Quiz.objects.filter(pk=id)
+    if isowner(request.user.id,quizs[0].owner_id):
+        if request.method == "POST":
+            return processSave(request, id)
+        else:
+            form = QuizEditForm(instance=quizs[0])
+            k = quizs[0].tagsastext()
+            f = { "form" : form ,"tags":k, "type" : "Edit", "user_id": request.user.id,"id": id} 
+            return render(request, "kabisote/addedit.html", f)
     else:
-        quizs = Quiz.objects.filter(pk=id)
-        form = QuizEditForm(instance=quizs[0])
-        k = quizs[0].tagsastext()
-    
-        f = { "form" : form ,"tags":k, "type" : "Edit", "user_id": request.user.id} 
-        return render(request, "kabisote/addedit.html", f)
+        return redirect(f"/?error=not+yours")
 def edit(request, id):
     quiz = Quiz.objects.get(pk=id)
-    return render(request, "kabisote/quiz.html", {"type":"edit", "quiz":quiz})
+    if isowner(request.user.id, quiz.owner.id):
+        qi = Quiz_item.objects.filter(quiz_id = id).order_by("question_number")
+        quizitems = [item.serializeForEdit() for item in qi]
+        return render(request, "kabisote/quiz.html", {"type":"edit", "quiz":quiz, "script": "editquiz","quizitems": quizitems})
+    else:
+        return redirect(f"/?error=not+yours")
+def delete(request, id):
+    quiz = Quiz.objects.get(pk=id)
+    if isowner(request.user.id, quiz.owner.id):
+        quiz.delete()
+        return redirect(f"/quizzes/user/{request.user.id}?success=deleted")
+    else:
+        return redirect(f"/?error=not+yours")   
 #questions and answers api
 # teaser pages    
 # pagetypes are public, user, bookmarked, tag, following
@@ -115,8 +128,12 @@ def routes(request, type):
         return render(request, "kabisote/teasers.html", {"type": "error"})
 def routesnid(request, type, id):
     if validpage(request, type):
+        tag = None
+        if type == "tag":
+            t = Tag.objects.get(pk=id)
+            tag = t.name
         #set a title and pass it depending on the page
-        return render(request, "kabisote/teasers.html", {"type": type, "id": id,"script": "teasers"})
+        return render(request, "kabisote/teasers.html", {"type": type, "id": id,"script": "teasers", "tag":tag})
     else:
         return render(request, "kabisote/teasers.html", {"type": "error"})
     
