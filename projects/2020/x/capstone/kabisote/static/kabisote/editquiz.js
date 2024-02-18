@@ -83,19 +83,19 @@ function QuestionFormsApp({setEditing}){
             )
         case 'txt':
             return(
-                <AddEditOATXT setCurrentEdit={setCurrentEdit} q={null} type="txt" a={[{answer: "", is_correct: true, answer_weight: 0, type: "txt"}]}/>
+                <AddEditQuestion setCurrentEdit={setCurrentEdit} q={null} type={currentEdit} a={[{answer: "", is_correct: true, answer_weight: 0, type: currentEdit}]}/>
             )
         case 'mcoa':
             return(
-                <AddEditMCOA setCurrentEdit={setCurrentEdit}/>
+                <AddEditQuestion setCurrentEdit={setCurrentEdit} type={currentEdit} a={[{answer: "", is_correct: true, answer_weight: 0, type: currentEdit}, {answer: "", is_correct: false, answer_weight: 1, type: currentEdit}]}/>
             )
         case 'mcma':
             return(
-                <AddEditMCMA setCurrentEdit={setCurrentEdit}/>
+                <AddEditQuestion setCurrentEdit={setCurrentEdit} type={currentEdit} a={[{answer: "", is_correct: true, answer_weight: 0, type: currentEdit}, {answer: "", is_correct: false, answer_weight: 1, type: currentEdit}]}/>
             )
         case 'oa':
             return(
-                <AddEditOATXT setCurrentEdit={setCurrentEdit} q={null} type="oa" a={[{answer: "", is_correct: true, answer_weight: 0, type: "oa"}, {answer: "", is_correct: true, answer_weight: 1, type: "oa"}]}/>
+                <AddEditQuestion setCurrentEdit={setCurrentEdit} q={null} type={currentEdit} a={[{answer: "", is_correct: true, answer_weight: 0, type: currentEdit}, {answer: "", is_correct: true, answer_weight: 1, type: currentEdit}]}/>
             )
     }
     
@@ -113,14 +113,27 @@ function QuestionButtons({setCurrentEdit}){
     )
 }
 
-function AddEditOATXT({setCurrentEdit, q, a, type}){
+function AddEditQuestion({setCurrentEdit, q, a, type}){
     const [question, setQuestion] = React.useState(q)
     // {answer:answer, is_correct, is_correct, answer_weight}
     const [answers, setAnswers] = React.useState(a)
     //disables add and rearrange buttons when a field is empty
     const [addable, setAddable] = React.useState(false)
     const [saveable, setSaveable] = React.useState(false)
-
+    const addHeaders = React.useRef(
+        {
+        "oa":"Add an ordered answer question", 
+        "txt": "Add a textbox answered question",
+        "mcma": "Add a multiple choice, multiple answer question",
+        "mcoa": "Add a multiple choice, ordered answer question"
+    })
+    const labels = React.useRef({
+        "oa":"Ordered answers", 
+        "txt": "Possible answers",
+        "mcma": "Answer options",
+        "mcoa": "Answer options"
+    }
+    )
     React.useEffect(()=>{
         if(question == '' || !addable){
             saveable && setSaveable(false)
@@ -131,13 +144,13 @@ function AddEditOATXT({setCurrentEdit, q, a, type}){
 
     return(
         <div class="formbox bg-light">
-            <h5>{type == "oa" ? `Add ordered answer question:`: `Add a textbox answered question` }</h5>
+            <h5>{addHeaders.current[type]}</h5>
             <form>
                 <QuestionField question={question} setQuestion={setQuestion} />
                 
                 <hr />
                 <div class='form-group wrapper-title mb-2 '>
-                    <label for="question">{type == "oa" ? `Answer:`: `Possible aswer/s` }</label>
+                    <label for="question">{labels.current[type] }</label>
 
                     {
                         type == "oa" ? <ol class="oaol">
@@ -151,12 +164,24 @@ function AddEditOATXT({setCurrentEdit, q, a, type}){
                                 )
                             })
                         }
-                        </ol>:<div class="txtanswrap">
+                        </ol>:
+                        type == "txt" ? <div class="txtanswrap">
                         {
                             answers.map((b,i)=>{
                                 return(
                                     
                                         <TXTFormAnswer a={b} setAnswers={setAnswers}  answers={answers} setAddable={setAddable} index={i} type="txt"/>
+                                
+                                    
+                                )
+                            })
+                        }
+                        </div>:<div class="mcanswrap">
+                        {
+                            answers.map((b,i)=>{
+                                return(
+                                    
+                                        <MCFormAnswer a={b} setAnswers={setAnswers}  answers={answers} setAddable={setAddable} index={i} type={type}/>
                                 
                                     
                                 )
@@ -184,72 +209,7 @@ function AddEditOATXT({setCurrentEdit, q, a, type}){
         </div>
     )
 }
-function AddEditMCOA({setCurrentEdit}){
-    const [question, setQuestion] = React.useState(null)
-    
-    // {answer:answer, is_correct, is_correct, answer_weight}
-    return(
-        <div class="formbox bg-light">
-            <h6>Add multiple choice, one answer question</h6>
-            <form>
-                <QuestionField question={question} setQuestion={setQuestion} />
-                <hr />
-                <div class='form-group wrapper-title mb-2 '>
-                    <label for="question">Choices</label>
-                    
-                    <div class="mcanscontainer bg-white mb-2">
-                        <input id="question" class="form-control mb-1" name="question"type="txt"></input>
-                        <span class="bg-danger txt-white xer">X</span>
-                        <input type="radio" class="multiradio me-1"  id="r2"></input>
-                        <label for="r2">Correct</label>
-                    </div>
-                    <div>
-                        <btn class="btn addmore btn-white  txt-sm me-1"> Add +</btn>
-                    </div>
-                   
-                    <hr />
-                    <div class="mt-2">
-                        <btn class="btn-sm btn btn-secondary me-1">Save</btn>
-                        <btn onClick={()=>{setCurrentEdit(null)}} class="btn-sm btn btn-danger">Cancel</btn>
-                    </div>
-                </div>
-                
-            </form>
-        </div>
-    )
-}
-function AddEditMCMA({setCurrentEdit}){
-    const [question, setQuestion] = React.useState(null)
-    // {answer:answer, is_correct, is_correct, answer_weight}
-    return(
-        <div class="formbox bg-light">
-            <h6>Add multiple choice, multiple answer question</h6>
-            <form>
-                <QuestionField question={question} setQuestion={setQuestion} /> 
-                <hr />
-                <div class='form-group wrapper-title mb-2 '>
-                    <label for="question">Choices</label>
-                    <div class="mcanscontainer bg-white mb-2">
-                        <input id="question" class="form-control mb-1" name="question"type="txt"></input>
-                        <input type="checkbox" class="multiradio me-1" id="r1"></input>
-                        <label for="r1">Correct</label>
-                    </div>
-                    
-                    <div>
-                        <btn class="btn addmore btn-white  txt-sm me-1"> Add +</btn>
-                    </div>
-                   
-                    <hr />
-                    <div class="mt-2">
-                        <btn class="btn-sm btn btn-secondary me-1">Save</btn>
-                        <btn onClick={()=>{setCurrentEdit(null)}} class="btn-sm btn btn-danger">Cancel</btn>
-                    </div>
-                </div>
-                
-            </form>
-        </div>
-    )
-}
+
 
 function QuestionField({question, setQuestion}){
     return(
@@ -281,9 +241,23 @@ function TXTFormAnswer({a, setAnswers, answers, type, setAddable, index}){
     )
 }
 
+function MCFormAnswer({a, setAnswers, answers, type, setAddable, index}){
+    return(
+        <div class="mcanscontainer bg-white mb-2">
+                        <input id="question" onChange={e=>updateAnswers(answers, e, setAnswers, type, a.answer_weight, setAddable) } class="form-control mb-1" name="question" type="txt" value={a.answer}></input>
+                        <input type={type == "mcma" ? "checkbox":"radio"} checked={a.is_correct? true: null}class="multiradio me-1" id="r1"></input>
+                        <label for="r1">Correct</label>
+                        {answers.length > 2 && <span onClick={g=>removeIndex(answers, setAnswers, index)}class="bg-danger txt-white xer">X</span>}
+                    </div>
+    )
+}
+
+//update 
+
 function updateAnswers(a, b, setAnswers, type, weight, setAddable){
         let answers = [...a]
         let addable = true
+        console.log("input type" + b.target.type)
         answers.forEach(a=>{
             if (a.answer_weight == weight){
                     a.answer = b.target.value;
