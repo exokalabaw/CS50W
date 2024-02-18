@@ -194,7 +194,7 @@ function AddEditQuestion({setCurrentEdit, q, a, type}){
                     
                     {
                         addable && <div>
-                        <btn onClick={()=>addOption(answers, setAnswers, "oa", setAddable)}class="btn addmore btn-white  txt-sm me-1">Add +</btn>
+                        <btn onClick={()=>addOption(answers, setAnswers, type, setAddable)}class="btn addmore btn-white  txt-sm me-1">Add +</btn>
                         </div>
                     }
                     
@@ -245,8 +245,8 @@ function MCFormAnswer({a, setAnswers, answers, type, setAddable, index}){
     return(
         <div class="mcanscontainer bg-white mb-2">
                         <input id="question" onChange={e=>updateAnswers(answers, e, setAnswers, type, a.answer_weight, setAddable) } class="form-control mb-1" name="question" type="txt" value={a.answer}></input>
-                        <input type={type == "mcma" ? "checkbox":"radio"} checked={a.is_correct? true: null}class="multiradio me-1" id="r1"></input>
-                        <label for="r1">Correct</label>
+                        <input type={type == "mcma" ? "checkbox":"radio"} checked={a.is_correct == true? true: false}class="multiradio me-1" id={`r${index}`} name={`r${index}`} onChange={h=>updateAnswers(answers, h, setAnswers, type, a.answer_weight, setAddable)}></input>
+                        <label for={`r${index}`} >Correct</label>
                         {answers.length > 2 && <span onClick={g=>removeIndex(answers, setAnswers, index)}class="bg-danger txt-white xer">X</span>}
                     </div>
     )
@@ -257,10 +257,22 @@ function MCFormAnswer({a, setAnswers, answers, type, setAddable, index}){
 function updateAnswers(a, b, setAnswers, type, weight, setAddable){
         let answers = [...a]
         let addable = true
-        console.log("input type" + b.target.type)
+        const fieldtype = b.target.type;
         answers.forEach(a=>{
+            if(type == "mcoa" && fieldtype == "radio"){
+                console.log("checking for correctnes")
+                a.is_correct  = false;
+            }
             if (a.answer_weight == weight){
+                if(fieldtype == "radio"){
+                    a.is_correct = true
+                }else if(fieldtype == "checkbox"){
+                    a.is_correct = !a.is_correct
+                }
+                 else{
                     a.answer = b.target.value;
+                }
+                    
                    
                 }
             if (addable && a.answer==''){
@@ -275,9 +287,14 @@ function updateAnswers(a, b, setAnswers, type, weight, setAddable){
 
 
 function addOption(answers, setAnswers, type, setAddable){
-    console.log('option add clicked?? answers before push : ' + answers)
     let a = [...answers]
-    a.push({answer: "", is_correct: true, answer_weight: answers.length , type: type})
+    const correcters = {
+        "txt":true,
+        "oa":true,
+        "mcma":false,
+        "mcoa":false
+    }
+    a.push({answer: "", is_correct: correcters[type], answer_weight: answers.length , type: type})
     setAnswers(a)
     setAddable(false)
 }
