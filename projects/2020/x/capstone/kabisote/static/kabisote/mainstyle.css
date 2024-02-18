@@ -131,6 +131,10 @@ btn.addmore{
     padding: 0.2rem 0.3rem;
     border: 1px solid #ced4da;
 }
+btn.editquestion{
+    font-size: .8rem;
+    padding: 0.2.rem 0.35rem;
+}
 .multiradio{
     height: 10px;
 }
@@ -148,4 +152,7 @@ btn.addmore{
 }
 .oaol{
     padding-left: 1rem;
+}
+.editing{
+    opacity: .2;
 }

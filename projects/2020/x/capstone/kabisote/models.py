@@ -129,7 +129,8 @@ class Answer_item(models.Model):
         return{
             "possible_answer":self.answer,
             "id": self.id,
-            "is_correct" : self.is_correct
+            "is_correct" : self.is_correct,
+            "answer_weight": self.answer_weight
         }
 
 class Quiz_history(models.Model):

@@ -1,66 +1,86 @@
 const ei = JSON.parse(document.getElementById('quizitems').textContent);
 const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
+const IdContext = React.createContext(null)
+const EditContext = React.createContext(null)
 function App({ id , b, quizid}){
+    
     const [questions, setQuestions] = React.useState(ei)
     // can be mac, txt, oa
     const [editing, setEditing] = React.useState(false)
+    const [qid, setQid] = React.useState(quizid)
     console.log(questions)
     return(
-        <div clas="eqcontainer">
-            <div id="myanswers" class="mt-4">
-                {
-                    questions.map(question=>{
-                        return(<Question question={question} />)
-                    })
-                }
-            </div>
-            <QuestionFormsApp editing={editing} setEditing={setEditing} />
-            
-            
-        </div>
+        <IdContext.Provider value={quizid}>
+            <EditContext.Provider value={[editing, setEditing]}>
+                <div clas="eqcontainer">
+                    <div id="myanswers" class="mt-4">
+                        {
+                            questions.map(question=>{
+                                return(<Question question={question} />)
+                            })
+                        }
+                    </div>
+                    
+                    <QuestionFormsApp editing={editing} setEditing={setEditing} />
+                    
+                    
+                </div>
+            </EditContext.Provider>
+        </IdContext.Provider>
     )
 }
 // question and answer display
 function Question({question}){
-    const at = {
+    const [editmode, setEditmode] = React.useState(false)
+    const at = React.useRef({
         oa: 'ordered answer',
         mcma: 'multiple choice, multiple answer',
         mcoa : 'multiple choice, multiple answer',
         txt : 'textbox answer'
-    }
-    return(
-        <div >
-            <h5>{question.question} <br/></h5>
-            <small>({at[`${question.quiz_type}`]}, {question.points} point{question.points > 1 && "s"})</small>
-            {
-                question.quiz_type == "oa"?
-                            <ol class="my-2">
-                            {
-                                question.answers.map(a=>{
-                                    return(
-                                        <PossibleAnswer answer={a} quiz_type={question.quiz_type}/>
-                                    )
-                                })
-                            }
-                            </ol>
-                :
-                <ul class="my-2">
+    })
+    const [editing, setEditing] = React.useContext(EditContext)
+    if(editmode){
+        return(
+            <AddEditQuestion addoredit={"edit"} setCurrentEdit={setEditmode} q={question.question} type={question.quiz_type} a={[...question.answers]}/>
+        )
+    }else{
+        return(
+            <div >
+                <h5>{question.question} <br/></h5>
+                <small>({at.current[`${question.quiz_type}`]}, {question.points} point{question.points > 1 && "s"})</small>
                 {
-                    question.answers.map(a=>{
-                        return(
-                            <PossibleAnswer answer={a} quiz_type={question.quiz_type}/>
-                        )
-                    })
-                }
-                </ul>
+                    question.quiz_type == "oa"?
+                                <ol class="mt-2 mb-3">
+                                {
+                                    question.answers.map(a=>{
+                                        return(
+                                            <PossibleAnswer answer={a} quiz_type={question.quiz_type}/>
+                                        )
+                                    })
+                                }
+                                </ol>
+                    :
+                    <ul class="mt-2 mb-3">
+                    {
+                        question.answers.map(a=>{
+                            return(
+                                <PossibleAnswer answer={a} quiz_type={question.quiz_type}/>
+                            )
+                        })
+                    }
+                    </ul>
+        
     
-
-
-            }
-            
-        </div>
-    )
+    
+                }
+                {
+                     <btn onClick={()=>{editing? null : setEditmode(true); setEditing(true)}} class={`btn btn-secondary btn-sm editquestion ${editing && "editing"}`}>Edit</btn>
+                }
+                
+            </div>
+        )
+    }
+    
 }
 
 function PossibleAnswer({answer, quiz_type}){
@@ -83,43 +103,50 @@ function QuestionFormsApp({setEditing}){
             )
         case 'txt':
             return(
-                <AddEditQuestion setCurrentEdit={setCurrentEdit} q={null} type={currentEdit} a={[{answer: "", is_correct: true, answer_weight: 0, type: currentEdit}]}/>
+                <AddEditQuestion addoredit={"add"} setCurrentEdit={setCurrentEdit} q={null} type={currentEdit} a={[{possible_answer: "", is_correct: true, answer_weight: 0, type: currentEdit}]}/>
             )
         case 'mcoa':
             return(
-                <AddEditQuestion setCurrentEdit={setCurrentEdit} type={currentEdit} a={[{answer: "", is_correct: true, answer_weight: 0, type: currentEdit}, {answer: "", is_correct: false, answer_weight: 1, type: currentEdit}]}/>
+                <AddEditQuestion addoredit={"add"} setCurrentEdit={setCurrentEdit} type={currentEdit} a={[{possible_answer: "", is_correct: true, answer_weight: 0, type: currentEdit}, {possible_answer: "", is_correct: false, answer_weight: 1, type: currentEdit}]}/>
             )
         case 'mcma':
             return(
-                <AddEditQuestion setCurrentEdit={setCurrentEdit} type={currentEdit} a={[{answer: "", is_correct: true, answer_weight: 0, type: currentEdit}, {answer: "", is_correct: false, answer_weight: 1, type: currentEdit}]}/>
+                <AddEditQuestion addoredit={"add"} setCurrentEdit={setCurrentEdit} type={currentEdit} a={[{possible_answer: "", is_correct: true, answer_weight: 0, type: currentEdit}, {possible_answer: "", is_correct: false, answer_weight: 1, type: currentEdit}]}/>
             )
         case 'oa':
             return(
-                <AddEditQuestion setCurrentEdit={setCurrentEdit} q={null} type={currentEdit} a={[{answer: "", is_correct: true, answer_weight: 0, type: currentEdit}, {answer: "", is_correct: true, answer_weight: 1, type: currentEdit}]}/>
+                <AddEditQuestion addoredit={"add"} setCurrentEdit={setCurrentEdit} q={null} type={currentEdit} a={[{possible_answer: "", is_correct: true, answer_weight: 0, type: currentEdit}, {possible_answer: "", is_correct: true, answer_weight: 1, type: currentEdit}]}/>
             )
     }
     
 }
 function QuestionButtons({setCurrentEdit}){
+    const [editing, setEditing] = React.useContext(EditContext)
+    if(editing){
+        return null;
+    }else{
+        return(
+            <div id="addlinks" class="bg-light">
+                    <h6>Add:</h6>
+                    <button class="btn btn-secondary btn-sm me-1" onClick={()=>{setCurrentEdit('txt'); setEditing(true)}}>Textbox</button>
+                    <button class="btn btn-secondary btn-sm me-1" onClick={()=>{setCurrentEdit('mcoa'); setEditing(true)}}>Multiple Choice, One Answer</button>
+                    <button class="btn btn-secondary btn-sm me-1" onClick={()=>{setCurrentEdit('mcma'); setEditing(true)}}>Multiple Choice, Multiple Answer</button>
+                    <button class="btn btn-secondary btn-sm me-1" onClick={()=>{setCurrentEdit('oa'); setEditing(true)}}>Ordered Answer</button>
+            </div>
+        )
+    }
     
-    return(
-        <div id="addlinks" class="bg-light">
-                <h6>Add:</h6>
-                <button class="btn btn-secondary btn-sm me-1" onClick={()=>setCurrentEdit('txt')}>Textbox</button>
-                <button class="btn btn-secondary btn-sm me-1" onClick={()=>setCurrentEdit('mcoa')}>Multiple Choice, One Answer</button>
-                <button class="btn btn-secondary btn-sm me-1" onClick={()=>setCurrentEdit('mcma')}>Multiple Choice, Multiple Answer</button>
-                <button class="btn btn-secondary btn-sm me-1" onClick={()=>setCurrentEdit('oa')}>Ordered Answer</button>
-        </div>
-    )
 }
 
-function AddEditQuestion({setCurrentEdit, q, a, type}){
+function AddEditQuestion({setCurrentEdit, q, a, type, addoredit}){
     const [question, setQuestion] = React.useState(q)
     // {answer:answer, is_correct, is_correct, answer_weight}
     const [answers, setAnswers] = React.useState(a)
     //disables add and rearrange buttons when a field is empty
-    const [addable, setAddable] = React.useState(false)
+    const [addable, setAddable] = React.useState(addoredit == "edit" ? true : false)
     const [saveable, setSaveable] = React.useState(false)
+    const quizid = React.useContext(IdContext)
+    const [editing, setEditing] = React.useContext(EditContext)
     const addHeaders = React.useRef(
         {
         "oa":"Add an ordered answer question", 
@@ -200,8 +227,8 @@ function AddEditQuestion({setCurrentEdit, q, a, type}){
                     
                     <hr />
                     <div class="mt-2">
-                        <btn disabled={!saveable} onClick={()=>{saveThisQuestion(question, answers, setCurrentEdit)}}class="btn-sm btn btn-primary me-1">Save</btn>
-                        <btn onClick={()=>{setCurrentEdit(null)}} class="btn-sm btn btn-secondary">Cancel</btn>
+                        <btn disabled={!saveable} onClick={()=>{saveThisQuestion(question, answers, setCurrentEdit, quizid)}}class="btn-sm btn btn-primary me-1">Save</btn>
+                        <btn onClick={()=>{setCurrentEdit(null); setEditing(false)}} class="btn-sm btn btn-secondary">Cancel</btn>
                     </div>
                 </div>
                 
@@ -224,7 +251,7 @@ function OAFormAnswer({a, setAnswers, answers, type, setAddable, index}){
     
     return(
         <li class="oaanscontainer mb-2 ">
-             <input id="question" value={a.answer} onChange={e=>updateAnswers(answers, e, setAnswers, type, a.answer_weight, setAddable) } class="form-control mb-2" name="question" type="txt">
+             <input id="question" value={a.possible_answer} onChange={e=>updateAnswers(answers, e, setAnswers, type, a.answer_weight, setAddable) } class="form-control mb-2" name="question" type="txt">
             </input>
             {answers.length > 2 && <span onClick={g=>removeIndex(answers, setAnswers, index)}class="bg-danger txt-white xer">X</span>}
         </li>
@@ -234,7 +261,7 @@ function TXTFormAnswer({a, setAnswers, answers, type, setAddable, index}){
     
     return(
         <div class="oaanscontainer mb-2 ">
-             <input id="question" value={a.answer} onChange={e=>updateAnswers(answers, e, setAnswers, type, a.answer_weight, setAddable) } class="form-control mb-2" name="question" type="txt">
+             <input id="question" value={a.possible_answer} onChange={e=>updateAnswers(answers, e, setAnswers, type, a.answer_weight, setAddable) } class="form-control mb-2" name="question" type="txt">
             </input>
             {answers.length > 1 && <span onClick={g=>removeIndex(answers, setAnswers, index)}class="bg-danger txt-white xer">X</span>}
         </div>
@@ -244,7 +271,7 @@ function TXTFormAnswer({a, setAnswers, answers, type, setAddable, index}){
 function MCFormAnswer({a, setAnswers, answers, type, setAddable, index}){
     return(
         <div class="mcanscontainer bg-white mb-2">
-                        <input id="question" onChange={e=>updateAnswers(answers, e, setAnswers, type, a.answer_weight, setAddable) } class="form-control mb-1" name="question" type="txt" value={a.answer}></input>
+                        <input id="question" onChange={e=>updateAnswers(answers, e, setAnswers, type, a.answer_weight, setAddable) } class="form-control mb-1" name="question" type="txt" value={a.possible_answer}></input>
                         <input type={type == "mcma" ? "checkbox":"radio"} checked={a.is_correct == true? true: false}class="multiradio me-1" id={`r${index}`} name={`r${index}`} onChange={h=>updateAnswers(answers, h, setAnswers, type, a.answer_weight, setAddable)}></input>
                         <label for={`r${index}`} >Correct</label>
                         {answers.length > 2 && <span onClick={g=>removeIndex(answers, setAnswers, index)}class="bg-danger txt-white xer">X</span>}
@@ -270,7 +297,7 @@ function updateAnswers(a, b, setAnswers, type, weight, setAddable){
                     a.is_correct = !a.is_correct
                 }
                  else{
-                    a.answer = b.target.value;
+                    a.possible_answer = b.target.value;
                 }
                     
                    
@@ -294,7 +321,7 @@ function addOption(answers, setAnswers, type, setAddable){
         "mcma":false,
         "mcoa":false
     }
-    a.push({answer: "", is_correct: correcters[type], answer_weight: answers.length , type: type})
+    a.push({possible_answer: "", is_correct: correcters[type], answer_weight: answers.length , type: type})
     setAnswers(a)
     setAddable(false)
 }
@@ -306,5 +333,9 @@ function removeIndex(answers, setAnswers, index){
     })
     setAnswers(j)
     
+}
+
+function saveThisQuestion(question, answers, setCurrentEdit, quizid){
+    // shoot the all the information via post to django
 }
 

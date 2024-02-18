@@ -119,7 +119,10 @@ def apiwid(request, type, id):
         return JsonResponse(posts, safe=False)
     else:
         return JsonResponse({"error":"this is not allowed"}, safe=False)
-
+#add and edit questions api
+def questionsapi(request, id):
+    # receive your question and answers via POST here
+    return JsonResponse({"success": " you are a champion"}, safe=False)
 # quizzes / public, user/<int:id>, bookmarked/<int:id>, following/<int:id>, tag/<int:id> 
 def routes(request, type):
     if validpage(request, type):
