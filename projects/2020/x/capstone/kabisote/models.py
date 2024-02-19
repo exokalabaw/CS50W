@@ -70,6 +70,9 @@ class Quiz_item(models.Model):
     )
     question_number = models.IntegerField()
     points = models.IntegerField(default=1)
+    class Meta:
+        ordering = ['question_number']
+        unique_together = ['quiz', 'question_number']
     def __str__(self):
         return f"#{self.question_number} of {self.quiz_id} - {self.question}"
     def serialize(self):
@@ -114,7 +117,7 @@ class Quiz_item(models.Model):
     #set ordering by get/set _answer_order
 class Answer_item(models.Model):
     question = models.ForeignKey(Quiz_item, on_delete=models.CASCADE)
-    answer = models.TextField()
+    possible_answer = models.TextField()
     is_correct = models.BooleanField(default=True)
     answer_weight = models.IntegerField(default=1)
     class Meta:
@@ -122,12 +125,12 @@ class Answer_item(models.Model):
     def possible_answers(self):
         return{
             "question_id": self.question.id,
-            "possible_answer":self.answer,
+            "possible_answer":self.possible_answer,
             "id":self.id
         }
     def answer_key(self):
         return{
-            "possible_answer":self.answer,
+            "possible_answer":self.possible_answer,
             "id": self.id,
             "is_correct" : self.is_correct,
             "answer_weight": self.answer_weight

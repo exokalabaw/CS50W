@@ -8,7 +8,6 @@ function App({ id , b, quizid}){
     // can be mac, txt, oa
     const [editing, setEditing] = React.useState(false)
     const [qid, setQid] = React.useState(quizid)
-    console.log(questions)
     return(
         <IdContext.Provider value={quizid}>
             <EditContext.Provider value={[editing, setEditing]}>
@@ -21,7 +20,7 @@ function App({ id , b, quizid}){
                         }
                     </div>
                     
-                    <QuestionFormsApp editing={editing} setEditing={setEditing} />
+                    <QuestionFormsApp />
                     
                     
                 </div>
@@ -41,7 +40,7 @@ function Question({question}){
     const [editing, setEditing] = React.useContext(EditContext)
     if(editmode){
         return(
-            <AddEditQuestion addoredit={"edit"} setCurrentEdit={setEditmode} q={question.question} type={question.quiz_type} a={[...question.answers]}/>
+            <AddEditQuestion addoredit={"edit"} setCurrentEdit={setEditmode} q={question.question} type={question.quiz_type} a={[...question.answers]} questionid={question.id} questionnumber={question.question_number}/>
         )
     }else{
         return(
@@ -93,7 +92,7 @@ function PossibleAnswer({answer, quiz_type}){
 }
 
 // question and answer forms
-function QuestionFormsApp({setEditing}){
+function QuestionFormsApp(){
     const [currentEdit, setCurrentEdit] = React.useState(null)
     
     switch(currentEdit){
@@ -138,7 +137,7 @@ function QuestionButtons({setCurrentEdit}){
     
 }
 
-function AddEditQuestion({setCurrentEdit, q, a, type, addoredit}){
+function AddEditQuestion({setCurrentEdit, q, a, type, addoredit, questionid}){
     const [question, setQuestion] = React.useState(q)
     // {answer:answer, is_correct, is_correct, answer_weight}
     const [answers, setAnswers] = React.useState(a)
@@ -174,7 +173,7 @@ function AddEditQuestion({setCurrentEdit, q, a, type, addoredit}){
             <h5>{addHeaders.current[type]}</h5>
             <form>
                 <QuestionField question={question} setQuestion={setQuestion} />
-                
+                {}
                 <hr />
                 <div class='form-group wrapper-title mb-2 '>
                     <label for="question">{labels.current[type] }</label>
@@ -227,7 +226,7 @@ function AddEditQuestion({setCurrentEdit, q, a, type, addoredit}){
                     
                     <hr />
                     <div class="mt-2">
-                        <btn disabled={!saveable} onClick={()=>{saveThisQuestion(question, answers, setCurrentEdit, quizid)}}class="btn-sm btn btn-primary me-1">Save</btn>
+                        <btn disabled={!saveable} onClick={()=>{saveThisQuestion(question, answers, setCurrentEdit, quizid, questionid, type, setEditing)}}class="btn-sm btn btn-primary me-1">Save</btn>
                         <btn onClick={()=>{setCurrentEdit(null); setEditing(false)}} class="btn-sm btn btn-secondary">Cancel</btn>
                     </div>
                 </div>
@@ -287,7 +286,6 @@ function updateAnswers(a, b, setAnswers, type, weight, setAddable){
         const fieldtype = b.target.type;
         answers.forEach(a=>{
             if(type == "mcoa" && fieldtype == "radio"){
-                console.log("checking for correctnes")
                 a.is_correct  = false;
             }
             if (a.answer_weight == weight){
@@ -307,7 +305,6 @@ function updateAnswers(a, b, setAnswers, type, weight, setAddable){
             }
                 
         })
-    console.log(answers)
     setAnswers(answers)
     setAddable(addable)
 }
@@ -322,6 +319,7 @@ function addOption(answers, setAnswers, type, setAddable){
         "mcoa":false
     }
     a.push({possible_answer: "", is_correct: correcters[type], answer_weight: answers.length , type: type})
+    console.log(a)
     setAnswers(a)
     setAddable(false)
 }
@@ -335,7 +333,24 @@ function removeIndex(answers, setAnswers, index){
     
 }
 
-function saveThisQuestion(question, answers, setCurrentEdit, quizid){
+async function saveThisQuestion(question, answers, setCurrentEdit, quizid, questionid, type, setEditing, question_number){
+    const addoredit = questionid ? "edit" : "add";
     // shoot the all the information via post to django
+    const body = {"addoredit": addoredit, "quizid": quizid, "question_id":questionid, "type":type, "question":question, "answers":answers, "question_number":question_number}
+    const strfied = JSON.stringify(body)
+    const request = new Request(
+        '/qe',
+        {
+            method: 'POST',
+            headers: {'X-CSRFToken': csrftoken},
+            mode: 'same-origin', // Do not send CSRF token to another domain.
+            body: strfied
+        }
+    )
+    const response = await fetch(request)
+    const result = await response.json()
+    console.log(result)
+    setCurrentEdit(null)
+    setEditing(false)
 }
 

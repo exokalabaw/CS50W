@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import Http404
 from .models import User, Tag, Quiz, Quiz_item, Answer_item, Quiz_history, Bookmark, Follow
 from .forms import QuizForm, QuizEditForm
-from .helpers import plok, isowner, validpage, processMCOA, processOA, processTXT, processMCMA, sortAnswerIds, sortPossibleAnswers, findUserAnswer, findUserAnswerIDS, sortCorrectAnswerStrings, returnTagIds, processSave
+from .helpers import plok, isowner, validpage, processMCOA, processOA, processTXT, processMCMA, sortAnswerIds, sortPossibleAnswers, findUserAnswer, findUserAnswerIDS, sortCorrectAnswerStrings, returnTagIds, processSave, processEditQuestion
 
 # Create your views here.
 
@@ -119,8 +119,30 @@ def apiwid(request, type, id):
         return JsonResponse(posts, safe=False)
     else:
         return JsonResponse({"error":"this is not allowed"}, safe=False)
+    
 #add and edit questions api
-def questionsapi(request, id):
+@login_required
+def questionsapi(request):
+    r = json.loads(request.body)
+    
+    if r['addoredit'] == 'add':
+        lastqn = Quiz_item.objects.filter(quiz_id=r['quizid']).values('question_number').reverse()[:1]
+        next_number = lastqn[0]['question_number'] +1
+        print(r['answers'])
+        questionitem = Quiz_item(quiz_id=r['quizid'], question=r['question'], question_number=next_number, quiz_type=r['type'])
+        questionitem.save()
+        for item in r['answers']:
+            newanswer = Answer_item(possible_answer=item['possible_answer'],is_correct=item['is_correct'], answer_weight=item['answer_weight'])
+            questionitem.answer_item_set.add(newanswer, bulk=False)
+            print(f"items {newanswer}")
+        questionitem.save()
+        print(f'the whole thing: {questionitem}')
+    else:
+        questionitem = Quiz_item.objects.get(pk=r['question_id'])
+        processEditQuestion(request, questionitem, r)
+        print(questionitem.question)
+            # questionitem.answer_item_set.add(possible_answer=item['possible_answer'])
+    # print(questionitem)
     # receive your question and answers via POST here
     return JsonResponse({"success": " you are a champion"}, safe=False)
 # quizzes / public, user/<int:id>, bookmarked/<int:id>, following/<int:id>, tag/<int:id> 

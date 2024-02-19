@@ -1,4 +1,4 @@
-from .models import Tag, Quiz, Bookmark, Follow
+from .models import Tag, Quiz, Bookmark, Follow, Answer_item
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from .forms import QuizForm, QuizEditForm
@@ -179,3 +179,48 @@ def processSave(request, id):
         returndata.save_m2m()
         form  = QuizForm(instance=s)
     return redirect(f"/edit/{s.id}?success=saved")
+
+def processEditQuestion(request, questionitem, submitted):
+    if (submitted['question']!=questionitem.question):
+        questionitem.question = submitted['question']
+        questionitem.save()
+    submittedanswers = submitted['answers']
+    savedanswers = questionitem.answer_item_set.all()
+    for answer in submittedanswers:
+        print(answer)
+        if 'id' in answer:
+            for savedanswer in savedanswers:
+                
+                if answer['id'] == savedanswer.id:
+                    changed = False
+                    if answer['possible_answer'] != savedanswer.possible_answer or answer['is_correct'] != savedanswer.is_correct or answer['answer_weight'] != savedanswer.answer_weight:
+                        changed = True
+                    
+                    if changed:
+                        changeditem = Answer_item(pk=answer['id'], possible_answer=answer['possible_answer'], is_correct=answer['is_correct'], answer_weight=answer['answer_weight'], question_id=questionitem.id)
+                        changeditem.save()
+                        # save the item
+                        print('something has changed')
+                # now loop over the saved items and check if all of the ids are in the submission
+                matchfound = False
+                for a2 in submittedanswers:
+                    if 'id' in a2:
+                        if savedanswer.id == a2['id']:
+                            matchfound = True
+                if not matchfound:
+                    savedanswer.delete()
+                    print('this should be deleted')
+
+        else:
+            newitem = Answer_item( possible_answer=answer['possible_answer'], is_correct=answer['is_correct'], answer_weight=answer['answer_weight'], question_id=questionitem.id)
+            newitem.save()
+        # this is a new item, just save it
+        
+        
+        
+    
+    
+    # check the question if it changed, if it did save the new question
+    # after that loop through the submitted answers, sub loop through the saved ones through the id
+    # if there is a match saved answer through the id, check if the values changed and save it if it did
+    # if there is no match save a new answer
