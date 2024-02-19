@@ -144,7 +144,9 @@ def questionsapi(request):
             # questionitem.answer_item_set.add(possible_answer=item['possible_answer'])
     # print(questionitem)
     # receive your question and answers via POST here
-    return JsonResponse({"success": " you are a champion"}, safe=False)
+    qi = Quiz_item.objects.filter(quiz_id = r['quizid']).order_by("question_number")
+    quizitems = [item.serializeForEdit() for item in qi]
+    return JsonResponse(quizitems, safe=False)
 # quizzes / public, user/<int:id>, bookmarked/<int:id>, following/<int:id>, tag/<int:id> 
 def routes(request, type):
     if validpage(request, type):

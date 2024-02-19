@@ -2,6 +2,7 @@ const ei = JSON.parse(document.getElementById('quizitems').textContent);
 const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 const IdContext = React.createContext(null)
 const EditContext = React.createContext(null)
+const QuestionsContext = React.createContext(null)
 function App({ id , b, quizid}){
     
     const [questions, setQuestions] = React.useState(ei)
@@ -9,6 +10,7 @@ function App({ id , b, quizid}){
     const [editing, setEditing] = React.useState(false)
     const [qid, setQid] = React.useState(quizid)
     return(
+        <QuestionsContext.Provider value={[setQuestions]}>
         <IdContext.Provider value={quizid}>
             <EditContext.Provider value={[editing, setEditing]}>
                 <div clas="eqcontainer">
@@ -26,6 +28,7 @@ function App({ id , b, quizid}){
                 </div>
             </EditContext.Provider>
         </IdContext.Provider>
+        </QuestionsContext.Provider>
     )
 }
 // question and answer display
@@ -34,7 +37,7 @@ function Question({question}){
     const at = React.useRef({
         oa: 'ordered answer',
         mcma: 'multiple choice, multiple answer',
-        mcoa : 'multiple choice, multiple answer',
+        mcoa : 'multiple choice, one answer',
         txt : 'textbox answer'
     })
     const [editing, setEditing] = React.useContext(EditContext)
@@ -146,12 +149,14 @@ function AddEditQuestion({setCurrentEdit, q, a, type, addoredit, questionid}){
     const [saveable, setSaveable] = React.useState(false)
     const quizid = React.useContext(IdContext)
     const [editing, setEditing] = React.useContext(EditContext)
+    const [setQuestions] = React.useContext(QuestionsContext)
+
     const addHeaders = React.useRef(
         {
         "oa":"Add an ordered answer question", 
         "txt": "Add a textbox answered question",
         "mcma": "Add a multiple choice, multiple answer question",
-        "mcoa": "Add a multiple choice, ordered answer question"
+        "mcoa": "Add a multiple choice, one answer question"
     })
     const labels = React.useRef({
         "oa":"Ordered answers", 
@@ -226,7 +231,7 @@ function AddEditQuestion({setCurrentEdit, q, a, type, addoredit, questionid}){
                     
                     <hr />
                     <div class="mt-2">
-                        <btn disabled={!saveable} onClick={()=>{saveThisQuestion(question, answers, setCurrentEdit, quizid, questionid, type, setEditing)}}class="btn-sm btn btn-primary me-1">Save</btn>
+                        <btn disabled={!saveable} onClick={()=>{saveable && saveThisQuestion(question, answers, setCurrentEdit, quizid, questionid, type, setEditing, setQuestions)}}class={`btn-sm btn btn-primary me-1 ${!saveable && 'editing'}`}>Save</btn>
                         <btn onClick={()=>{setCurrentEdit(null); setEditing(false)}} class="btn-sm btn btn-secondary">Cancel</btn>
                     </div>
                 </div>
@@ -300,7 +305,7 @@ function updateAnswers(a, b, setAnswers, type, weight, setAddable){
                     
                    
                 }
-            if (addable && a.answer==''){
+            if (addable && a.possible_answer==''){
                 addable = false;
             }
                 
@@ -332,11 +337,10 @@ function removeIndex(answers, setAnswers, index){
     setAnswers(j)
     
 }
-
-async function saveThisQuestion(question, answers, setCurrentEdit, quizid, questionid, type, setEditing, question_number){
+async function saveThisQuestion(question, answers, setCurrentEdit, quizid, questionid, type, setEditing,  setQuestions){
     const addoredit = questionid ? "edit" : "add";
     // shoot the all the information via post to django
-    const body = {"addoredit": addoredit, "quizid": quizid, "question_id":questionid, "type":type, "question":question, "answers":answers, "question_number":question_number}
+    const body = {"addoredit": addoredit, "quizid": quizid, "question_id":questionid, "type":type, "question":question, "answers":answers}
     const strfied = JSON.stringify(body)
     const request = new Request(
         '/qe',
@@ -350,7 +354,9 @@ async function saveThisQuestion(question, answers, setCurrentEdit, quizid, quest
     const response = await fetch(request)
     const result = await response.json()
     console.log(result)
+    setQuestions(result)
     setCurrentEdit(null)
     setEditing(false)
+    
 }
 
