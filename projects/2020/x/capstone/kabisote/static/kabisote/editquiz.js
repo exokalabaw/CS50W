@@ -102,7 +102,7 @@ function QuestionFormsApp(){
             )
         case 'txt':
             return(
-                <AddEditQuestion addoredit={"add"} setCurrentEdit={setCurrentEdit} q={null} type={currentEdit} a={[{possible_answer: "", is_correct: true, answer_weight: 0, type: currentEdit}]}/>
+                <AddEditQuestion addoredit={"add"} setCurrentEdit={setCurrentEdit} q={null} type={currentEdit} a={[{possible_answer: "", is_correct: true, answer_weight: 1, type: currentEdit}]}/>
             )
         case 'mcoa':
             return(
@@ -114,7 +114,7 @@ function QuestionFormsApp(){
             )
         case 'oa':
             return(
-                <AddEditQuestion addoredit={"add"} setCurrentEdit={setCurrentEdit} q={null} type={currentEdit} a={[{possible_answer: "", is_correct: true, answer_weight: 0, type: currentEdit}, {possible_answer: "", is_correct: true, answer_weight: 1, type: currentEdit}]}/>
+                <AddEditQuestion addoredit={"add"} setCurrentEdit={setCurrentEdit} q={null} type={currentEdit} a={[{possible_answer: "", is_correct: true, answer_weight: 1, type: currentEdit}, {possible_answer: "", is_correct: true, answer_weight: 2, type: currentEdit}]}/>
             )
     }
     
@@ -318,8 +318,8 @@ function addOption(answers, setAnswers, type, setAddable){
         "mcma":false,
         "mcoa":false
     }
-    a.push({possible_answer: "", is_correct: correcters[type], answer_weight: answers.length , type: type})
-    console.log(a)
+    a.push({possible_answer: "", is_correct: correcters[type], answer_weight: answers.length +1 , type: type})
+    
     setAnswers(a)
     setAddable(false)
 }
