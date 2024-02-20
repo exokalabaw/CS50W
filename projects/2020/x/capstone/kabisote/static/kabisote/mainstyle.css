@@ -85,6 +85,8 @@ small{
 }
 #myanswers h5{
     margin-bottom: 0;
+    margin-right: 40px;
+    line-height: 1.5em;
 }
 
 small{
@@ -155,4 +157,43 @@ btn.editquestion{
 }
 .editing{
     opacity: .2;
+}
+.questioncontainer{
+    position: relative;
+    padding-right: 60px;
+}
+.cheverly{
+    position: absolute;
+    right: 5px;
+}
+.chevup{
+    top: 10px;
+}
+.chevdown{
+    bottom: 10px;
+}
+.hidden{
+    display:none;
+}
+@keyframes slidein {
+    from {
+      right: -10px;
+      bottom: -10px
+    }
+
+    to {
+      right: 100px;
+      bottpm: 100px
+    }
+  }
+#ordersaver{
+    position: fixed;
+    right:100px;
+    bottom: 100px;
+    opacity: .7;
+    color: #fff;
+    animation-duration: 500ms;
+        animation-name: slidein;
+        animation-iteration-count: 1;
+        animation-timing-function: cubic-bezier;
 }

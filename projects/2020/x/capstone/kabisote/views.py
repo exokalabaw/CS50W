@@ -147,6 +147,17 @@ def questionsapi(request):
     qi = Quiz_item.objects.filter(quiz_id = r['quizid']).order_by("question_number")
     quizitems = [item.serializeForEdit() for item in qi]
     return JsonResponse(quizitems, safe=False)
+def deletequestion(request):
+    p = json.loads(request.body)
+
+    q = Quiz_item.objects.get(pk=p['questionid'])
+    quizid = q.quiz_id
+    q.delete()
+
+    qi = Quiz_item.objects.filter(quiz_id = quizid).order_by("question_number")
+    quizitems = [item.serializeForEdit() for item in qi]
+    print(f"quizitems = {quizitems}")
+    return JsonResponse(quizitems, safe=False)
 # quizzes / public, user/<int:id>, bookmarked/<int:id>, following/<int:id>, tag/<int:id> 
 def routes(request, type):
     if validpage(request, type):
@@ -273,5 +284,38 @@ def checkanswers(request):
         return JsonResponse({"error":"did not go through"}, safe=False)
 
 
+@login_required
+# i feel like this query is so expensive
+def reorder(request):
+    q = json.loads(request.body)
+    quid = q[0]['quiz_id']
+    savedQuestions = Quiz_item.objects.filter(quiz_id=quid)
+    print(f'pre change savedq : {savedQuestions}')
+    length = len(q)
+    for item in q:
+        id = item['id']
+        qn = item['question_number']
+        
+        # question numbers are unique to the question so you have to check if the question's id number has not changed
+        
+        for question in savedQuestions:
+            if question.question_number == qn: 
+                if question.id != id:
+                    length = length + 1
+                    question.question_number = length
+                    question.save()
+    print(f'should have different ids : {savedQuestions}')    
+    for i in q:
+        id = i['id']
+        qn = i['question_number']     
+        for question in savedQuestions:
+            if question.id == id:
+                    question.question_number = qn
+                    question.save()
+    print(f"new order is : {savedQuestions}")
+    qi = Quiz_item.objects.filter(quiz_id=quid)
+    quizitems = [item.serializeForEdit() for item in qi]
+    return JsonResponse(quizitems, safe=False)
+        
 
-    
+

@@ -102,8 +102,7 @@ function Possible_answers({pa, qt, question_index, setQuestions, ua, q , setVali
            
         )
     }
-    //this is where you ended last night. . . .make two sets of ordered answer questions to check for cross question issues
-    //list down what happens when you run the function to re order the oas after an item is dragged to another spot
+    
     else if(qt=="oa"){
        
         

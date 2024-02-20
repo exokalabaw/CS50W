@@ -3,37 +3,50 @@ const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 const IdContext = React.createContext(null)
 const EditContext = React.createContext(null)
 const QuestionsContext = React.createContext(null)
+const UnsavedOrderContext = React.createContext(null)
+
 function App({ id , b, quizid}){
     
     const [questions, setQuestions] = React.useState(ei)
+    const [unsavedOrder, setUnsavedOrder] = React.useState(false)
     // can be mac, txt, oa
     const [editing, setEditing] = React.useState(false)
     const [qid, setQid] = React.useState(quizid)
     return(
+        <UnsavedOrderContext.Provider value={[setUnsavedOrder]}>
         <QuestionsContext.Provider value={[setQuestions]}>
         <IdContext.Provider value={quizid}>
             <EditContext.Provider value={[editing, setEditing]}>
                 <div clas="eqcontainer">
                     <div id="myanswers" class="mt-4">
                         {
-                            questions.map(question=>{
-                                return(<Question question={question} />)
+                            questions.map((question, index, ar)=>{
+                                return(<Question question={question} index={index} ar={ar}/>)
                             })
                         }
                     </div>
                     
                     <QuestionFormsApp />
-                    
+                    {
+                    unsavedOrder && <button onClick={()=>{saveNewOrder(setUnsavedOrder, questions, setQuestions)}} id="ordersaver" type="submit" class="btn btn-warning  fade-in-right fade ">
+                    *unsaved arrangement<br/>
+                    click to save
+                    </button>
+                    }
                     
                 </div>
+                
             </EditContext.Provider>
         </IdContext.Provider>
         </QuestionsContext.Provider>
+        </UnsavedOrderContext.Provider>
     )
 }
 // question and answer display
-function Question({question}){
+function Question({question, index, ar}){
     const [editmode, setEditmode] = React.useState(false)
+    const [setQuestions] = React.useContext(QuestionsContext)
+    
     const at = React.useRef({
         oa: 'ordered answer',
         mcma: 'multiple choice, multiple answer',
@@ -47,8 +60,8 @@ function Question({question}){
         )
     }else{
         return(
-            <div >
-                <h5>{question.question} <br/></h5>
+            <div class="questioncontainer">
+                <h5>{index + 1}. {question.question} <br/></h5>
                 <small>({at.current[`${question.quiz_type}`]}, {question.points} point{question.points > 1 && "s"})</small>
                 {
                     question.quiz_type == "oa"?
@@ -76,9 +89,15 @@ function Question({question}){
     
                 }
                 {
-                     <btn onClick={()=>{editing? null : setEditmode(true); setEditing(true)}} class={`btn btn-secondary btn-sm editquestion ${editing && "editing"}`}>Edit</btn>
+                    <div>
+                        <btn onClick={()=>{editing? null : setEditmode(true); setEditing(true)}} class={`btn btn-secondary btn-sm editquestion me-1 ${editing && "editing"}`}>Edit</btn>
+                        <btn onClick={()=>{editing? null : deleteQuestion(question.id, setEditing, setQuestions)}} class={`btn btn-danger btn-sm editquestion ${editing && "editing"}`}>Delete</btn>
+                    </div>
                 }
-                
+
+                <DownUp  index={index} ar={[...ar]}  />
+               
+                    
             </div>
         )
     }
@@ -283,6 +302,33 @@ function MCFormAnswer({a, setAnswers, answers, type, setAddable, index}){
     )
 }
 
+function DownUp({ index, ar}){
+    const [setQuestions] = React.useContext(QuestionsContext)
+    const [setUnsavedOrder] = React.useContext(UnsavedOrderContext)
+    return(
+        <div >
+            {
+                index != 0 && <button onClick={()=>swapQuestionPlace("u", index, ar, setQuestions, setUnsavedOrder)} class="chevup cheverly btn btn-light mx-1 ">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-chevron-double-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M7.646 2.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 3.707 2.354 9.354a.5.5 0 1 1-.708-.708l6-6z"/>
+                    <path fill-rule="evenodd" d="M7.646 6.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 7.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/>
+                  </svg>
+                </button>
+            }
+        
+            {
+                index != ar.length -1 && <button onClick={()=>swapQuestionPlace("d", index, ar, setQuestions, setUnsavedOrder)} class="chevdown cheverly btn btn-light mx-1 ">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-chevron-double-down" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M1.646 6.646a.5.5 0 0 1 .708 0L8 12.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                    <path fill-rule="evenodd" d="M1.646 2.646a.5.5 0 0 1 .708 0L8 8.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                </svg>
+            </button>
+            }
+        
+    </div>
+    )
+}
+
 //update 
 
 function updateAnswers(a, b, setAnswers, type, weight, setAddable){
@@ -358,5 +404,67 @@ async function saveThisQuestion(question, answers, setCurrentEdit, quizid, quest
     setCurrentEdit(null)
     setEditing(false)
     
+}
+async function deleteQuestion(id, setEditing, setQuestions){
+    setEditing(true);
+    const body = {"questionid":id}
+    const  strfied = JSON.stringify(body)
+    const request = new Request(
+        '/deleteq',
+        {
+            method: 'POST',
+            headers: {'X-CSRFToken': csrftoken},
+            mode: 'same-origin', // Do not send CSRF token to another domain.
+            body: strfied
+        }
+    )
+    const response = await fetch(request)
+    const res = await response.json()
+    console.log("res is " + res)
+    setQuestions(res)
+    setEditing(false)
+    
+    
+}
+function swapQuestionPlace(direction, index, ar, setQuestions, setUnsavedOrder){
+    const array = ar;
+    const mover = array[index];
+    let destination = null;
+    if(direction == "u"){
+        destination = index - 1;
+    }else{
+        destination = index + 1;
+    }
+    const temp = array[destination];
+    array[destination] = mover;
+    array[index] = temp;
+
+    setQuestions(array)
+    
+    setUnsavedOrder(true)
+}
+
+async function saveNewOrder(setUnsavedOrder, questions, setQuestions){
+    console.log('questions object : ' + questions)
+    let temp = questions
+    temp.forEach((a,i)=>{
+        a['question_number'] = i+1
+        console.log(a)
+    })
+    const  strfied = JSON.stringify(temp)
+    const request = new Request(
+        '/reorder',
+        {
+            method: 'POST',
+            headers: {'X-CSRFToken': csrftoken},
+            mode: 'same-origin', // Do not send CSRF token to another domain.
+            body: strfied
+        }
+    )
+    const response = await fetch(request)
+    const res = await response.json()
+    setQuestions(res)
+    setUnsavedOrder(false)
+
 }
 

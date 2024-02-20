@@ -20,5 +20,7 @@ urlpatterns = [
     path("quiz/<int:id>", views.quiz, name="quiz"),
     path("tf/<int:isfollowing>/<int:id>", views.tf, name="togglefollow"),
     path("tb/<slug:bookmarked>/<int:id>", views.tb, name="togglebookmark"),
-    path("checkanswers", views.checkanswers, name="checkanswers")
+    path("checkanswers", views.checkanswers, name="checkanswers"),
+    path("deleteq", views.deletequestion, name="deletequestion"),
+    path("reorder", views.reorder, name="reorder")
 ]
