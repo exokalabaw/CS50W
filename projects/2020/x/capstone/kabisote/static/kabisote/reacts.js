@@ -11,10 +11,12 @@ function App({user, type, id}){
 
     async function load_feed(){
         let p;
-        if(id){
+        if(id != 'None'){
+            
             p = await fetch(`/j/${type}/${id}?page=${pageNumber}`)
             
         }else{
+            
             p = await fetch(`/j/${type}?page=${pageNumber}`)
         }
         const i = await p.json();
@@ -79,31 +81,31 @@ function QuizItem({stuff, id, type}){
         title: stuff.title
     })
     return(
-        <div class="border p-3 my-2">
+        <div class="border p-3 my-2 quizteaser">
             <h4><a href={`/quiz/${thePost.id}`}>{thePost.title}</a></h4>
-            <small>by <a href={`/quizzes/user/${stuff.owner}`}>{thePost.username}</a></small><br/>
-            <small>updated : {thePost.updated}<br/>
-            {
-            type == "bookmarked"?<a a href="" onClick={(e)=>toggleBookmark(setBookmarked, bookmarked, thePost.id, e)}>{bookmarked ? "remove bookmark": "add bookmark"} </a>:<a onClick={(e)=>toggleBookmark(setBookmarked, bookmarked, thePost.id, e)}>{bookmarked ? "remove bookmark": "add bookmark"} </a>
-            
-            }
-            
-           
+            <small class="block">by <a href={`/quizzes/user/${stuff.owner}`}>{thePost.username}</a></small>
+            <small class="block">updated : {thePost.updated}
             </small>
-            <div class="mt-2">
+            <div class="my-3">
                 {thePost.post}
             </div>
-            <small>tags: 
+            <small class="block">category: 
             {
                 thePost.tags.map(t=>
                     <a class="me-2" href={`/quizzes/tag/${t.id}`} data-id={t.id}>{t.tag}</a>
                 )
                 }
             </small>
-            <div>
-            <a class="me-2" href={`/quiz/${thePost.id}`}>Go to quiz</a>
+            <small class="block">
+                {
+                type == "bookmarked"?<a a href="" onClick={(e)=>toggleBookmark(setBookmarked, bookmarked, thePost.id, e)}>{bookmarked ? "remove bookmark": "add bookmark"} </a>:<a onClick={(e)=>toggleBookmark(setBookmarked, bookmarked, thePost.id, e)}>{bookmarked ? "remove bookmark": "add bookmark"} </a>
+                
+                }
+            </small>
+            <div class="mt-3">
+            <a class="me-1 btn btn-primary btn-sm " href={`/quiz/${thePost.id}`}>Go to quiz</a>
             {
-                thePost.owner == userId ? <a href={`/edit/${thePost.id}`}>Edit </a>:null 
+                thePost.owner == userId ? <a class="btn btn-secondary btn-sm"href={`/edit/${thePost.id}`}>Edit </a>:null 
             }
             </div>
             

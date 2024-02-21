@@ -4,7 +4,7 @@
     <div class="row py-4">
         
        <div class="col col-lg-5 col-sm-10 mx-auto">
-            <h1 class="mb-4 mt-2">{% if type == "user" %}Your Quizzes{% elif type == "public" %}Public Quizzes{% elif type == "tag" %}Category: {{ tag | capfirst }} {% else %} {{ type | capfirst }}{% endif %}</h1>
+            <h1 class="mb-4 mt-2">{% if type == "user" %}{% if id == request.user.id %}Your {% else %}{{ username }}'s {% endif %} Quizzes{% elif type == "public" %}Public Quizzes{% elif type == "tag" %}Category: {{ tag | capfirst }} {% else %} {{ type | capfirst }}{% endif %}</h1>
             <div id="feed">
                 
             </div>

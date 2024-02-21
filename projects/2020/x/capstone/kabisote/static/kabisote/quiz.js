@@ -27,7 +27,14 @@ function App({ id , b, quizid}){
             <div>
                 <div>
                     <Questions qs={questions}  validated={validated} setValidated={setValidated} results={results} status={status}/>
-                    <button class="btn btn-primary mt-2"  disabled={!validated || status != "taking"} onClick={()=>checkResults(questions, quizid, setResults, setStatus)}>Submit</button>
+                    {
+                        status == "review" ?
+                        <a href={`/quiz/${quizid}`}  class="btn btn-primary mt-2" >retake</a>:
+                        <button class="btn btn-primary mt-2"  disabled={!validated || status != "taking"} onClick={()=>checkResults(questions, quizid, setResults, setStatus)}>Submit</button>
+                        
+
+                    }
+                    
                 </div>        
                 {
                     status == "results" &&

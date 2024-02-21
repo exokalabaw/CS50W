@@ -10,7 +10,7 @@ from django.http import Http404
 from .models import User, Tag, Quiz, Quiz_item, Answer_item, Quiz_history, Bookmark, Follow
 from .forms import QuizForm, QuizEditForm
 from .helpers import plok, isowner, validpage, processMCOA, processOA, processTXT, processMCMA, sortAnswerIds, sortPossibleAnswers, findUserAnswer, findUserAnswerIDS, sortCorrectAnswerStrings, returnTagIds, processSave, processEditQuestion
-
+import random
 # Create your views here.
 
 def index(request):
@@ -69,40 +69,55 @@ def register(request):
         return render(request, "kabisote/register.html")
 #add and edit quiz page views
 def add(request):
-    if request.method == "POST":
-        return processSave(request, None)
-    else:
-
-        form = QuizForm()
-        f = { "form" : form , "type" : "Add", "user_id": request.user.id} 
-        return render(request, "kabisote/addedit.html", f)
-def editdetails(request, id):
-    quizs = Quiz.objects.filter(pk=id)
-    if isowner(request.user.id,quizs[0].owner_id):
+    if request.user.is_authenticated:
         if request.method == "POST":
-            return processSave(request, id)
+            return processSave(request, None)
         else:
-            form = QuizEditForm(instance=quizs[0])
-            k = quizs[0].tagsastext()
-            f = { "form" : form ,"tags":k, "type" : "Edit", "user_id": request.user.id,"id": id} 
+
+            form = QuizForm()
+            f = { "form" : form , "type" : "Add", "user_id": request.user.id} 
             return render(request, "kabisote/addedit.html", f)
+    else: 
+        return redirect(f"/error-404")
+
+def editdetails(request, id):
+    if request.user.is_authenticated:
+        quizs = Quiz.objects.filter(pk=id)
+        if isowner(request.user.id,quizs[0].owner_id):
+            if request.method == "POST":
+                return processSave(request, id)
+            else:
+                form = QuizEditForm(instance=quizs[0])
+                k = quizs[0].tagsastext()
+                f = { "form" : form ,"tags":k, "type" : "Edit", "user_id": request.user.id,"id": id} 
+                return render(request, "kabisote/addedit.html", f)
+        else:
+            return redirect(f"/error-404")
     else:
-        return redirect(f"/?error=not+yours")
+        return redirect(f"/error-404")
 def edit(request, id):
-    quiz = Quiz.objects.get(pk=id)
-    if isowner(request.user.id, quiz.owner.id):
-        qi = Quiz_item.objects.filter(quiz_id = id).order_by("question_number")
-        quizitems = [item.serializeForEdit() for item in qi]
-        return render(request, "kabisote/quiz.html", {"type":"edit", "quiz":quiz, "script": "editquiz","quizitems": quizitems})
+    quiz = Quiz.objects.filter(pk=id)
+    if len(quiz) == 0:
+        return redirect("/error-404")
     else:
-        return redirect(f"/?error=not+yours")
+        if isowner(request.user.id, quiz[0].owner.id):
+            qi = Quiz_item.objects.filter(quiz_id = id).order_by("question_number")
+            quizitems = [item.serializeForEdit() for item in qi]
+            return render(request, "kabisote/quiz.html", {"type":"edit", "quiz":quiz[0], "script": "editquiz","quizitems": quizitems})
+        else:
+            return redirect("/error-404")
+   
+        
 def delete(request, id):
-    quiz = Quiz.objects.get(pk=id)
-    if isowner(request.user.id, quiz.owner.id):
-        quiz.delete()
-        return redirect(f"/quizzes/user/{request.user.id}?success=deleted")
+    quiz = Quiz.objects.filter(pk=id)
+    if len(quiz) == 0:
+        return redirect("/error-404")
     else:
-        return redirect(f"/?error=not+yours")   
+        if isowner(request.user.id, quiz[0].owner.id):
+            quiz.delete()
+            return redirect(f"/quizzes/user/{request.user.id}?success=deleted")
+        else:
+            return redirect(f"/error-404")   
 #questions and answers api
 # teaser pages    
 # pagetypes are public, user, bookmarked, tag, following
@@ -127,7 +142,11 @@ def questionsapi(request):
     
     if r['addoredit'] == 'add':
         lastqn = Quiz_item.objects.filter(quiz_id=r['quizid']).values('question_number').reverse()[:1]
-        next_number = lastqn[0]['question_number'] +1
+        lastqnlen = len(lastqn)
+        if lastqnlen == 0:
+            next_number = 1
+        else:
+            next_number = lastqn[0]['question_number'] +1
         print(r['answers'])
         questionitem = Quiz_item(quiz_id=r['quizid'], question=r['question'], question_number=next_number, quiz_type=r['type'])
         questionitem.save()
@@ -147,6 +166,7 @@ def questionsapi(request):
     qi = Quiz_item.objects.filter(quiz_id = r['quizid']).order_by("question_number")
     quizitems = [item.serializeForEdit() for item in qi]
     return JsonResponse(quizitems, safe=False)
+@login_required
 def deletequestion(request):
     p = json.loads(request.body)
 
@@ -163,17 +183,20 @@ def routes(request, type):
     if validpage(request, type):
         return render(request, "kabisote/teasers.html", {"type": type, "id": request.user.id, "script": "teasers"})
     else:
-        return render(request, "kabisote/teasers.html", {"type": "error"})
+        return redirect(f"/error-404")
 def routesnid(request, type, id):
     if validpage(request, type):
         tag = None
+        u = None
         if type == "tag":
             t = Tag.objects.get(pk=id)
             tag = t.name
+        if type == "user":
+            u = User.objects.get(pk=id)
         #set a title and pass it depending on the page
-        return render(request, "kabisote/teasers.html", {"type": type, "id": id,"script": "teasers", "tag":tag})
+        return render(request, "kabisote/teasers.html", {"type": type, "id": id,"script": "teasers", "tag":tag, "username":u})
     else:
-        return render(request, "kabisote/teasers.html", {"type": "error"})
+        return redirect(f"/error-404")
     
 def quiz(request, id):
     quiz = Quiz.objects.get(pk=id)
@@ -317,5 +340,11 @@ def reorder(request):
     quizitems = [item.serializeForEdit() for item in qi]
     return JsonResponse(quizitems, safe=False)
         
+def randomize(request):
+    qs = Quiz.objects.filter(private = False)
+    rd = random.choice(qs)
+    print(rd.id)
+    return redirect(f"/quiz/{rd.id}")
 
-
+def error404(request):
+    return render(request, "kabisote/error-404.html")

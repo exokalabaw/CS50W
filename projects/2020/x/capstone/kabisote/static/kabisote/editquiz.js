@@ -149,10 +149,10 @@ function QuestionButtons({setCurrentEdit}){
         return(
             <div id="addlinks" class="bg-light">
                     <h6>Add:</h6>
-                    <button class="btn btn-secondary btn-sm me-1" onClick={()=>{setCurrentEdit('txt'); setEditing(true)}}>Textbox</button>
-                    <button class="btn btn-secondary btn-sm me-1" onClick={()=>{setCurrentEdit('mcoa'); setEditing(true)}}>Multiple Choice, One Answer</button>
-                    <button class="btn btn-secondary btn-sm me-1" onClick={()=>{setCurrentEdit('mcma'); setEditing(true)}}>Multiple Choice, Multiple Answer</button>
-                    <button class="btn btn-secondary btn-sm me-1" onClick={()=>{setCurrentEdit('oa'); setEditing(true)}}>Ordered Answer</button>
+                    <button class="btn btn-secondary btn-sm me-1 mb-1" onClick={()=>{setCurrentEdit('txt'); setEditing(true)}}>Textbox</button>
+                    <button class="btn btn-secondary btn-sm me-1 mb-1" onClick={()=>{setCurrentEdit('mcoa'); setEditing(true)}}>Multiple Choice, One Answer</button>
+                    <button class="btn btn-secondary btn-sm me-1 mb-1" onClick={()=>{setCurrentEdit('mcma'); setEditing(true)}}>Multiple Choice, Multiple Answer</button>
+                    <button class="btn btn-secondary btn-sm me-1 mb-1" onClick={()=>{setCurrentEdit('oa'); setEditing(true)}}>Ordered Answer</button>
             </div>
         )
     }

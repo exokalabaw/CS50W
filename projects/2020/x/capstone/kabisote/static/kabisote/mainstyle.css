@@ -1,11 +1,26 @@
+/* font-family: "Fredoka", sans-serif; save for logo and feature font */
 body{
-    color: #343a40;
+    color: #495057/*#495057*/;
+    font-family: "Nunito", sans-serif;
+    background-color: #dfe5da/*#71756e*/!important;
 }
+h1, h1 a, h2, h2 a, h3, h3 a, h4, h4 a, h5, h5 a{
+    color: #055160!important;
+    font-weight: 700;
+}
+
 a, .viewclick{
     color: #495057;
     text-decoration: none;
     opacity: .95;
     
+}
+a.navbar-brand{
+    font-family: "Fredoka", sans-serif;
+    font-weight: 500;
+    font-size: 2rem;
+    color: #055160!important;
+
 }
 .viewclick:hover, a:hover{
     cursor: pointer;
@@ -70,12 +85,13 @@ small{
 .form-group label{
     margin-bottom: 10px;
 }
-#myanswers > div, #addlinks, .formbox{
+#myanswers > div, #addlinks, .formbox, .quizteaser, #quizpage, #addedit{
     border: 1px solid #ced4da;
     padding: 0.75rem 1rem;
     margin-bottom: 1.5rem;
     border-radius: 10px;
     position: relative;
+    background-color: #fff;
 
 }
  #addlinks{
@@ -196,4 +212,97 @@ btn.editquestion{
         animation-name: slidein;
         animation-iteration-count: 1;
         animation-timing-function: cubic-bezier;
+}
+.btn-primary{
+    background-color: #055160!important;
+    border: #2b2f32;
+}
+.btn-danger{
+    background-color: #dc3545;
+    opacity: .85;
+}
+#hero{
+    height: 90vh;
+    background-image: url("/static/kabisote/images/smartlady.svg");
+    background-repeat: no-repeat;
+    background-size: auto 90%;
+    background-position: bottom 15% right 10%;
+
+}
+#hero h1{
+    font-size: 75px;
+    font-family: "Fredoka", sans-serif;
+    font-weight: 600;
+    line-height: 1.3em;
+    margin-bottom: 40px;
+}
+#hero h2{
+    display: inline-block!important;
+    padding: 20px 40px;
+    border-radius: 20px;
+    border: 1px dotted #e5c150;
+}
+
+.herotext{
+    margin:100px 0 0 5%;
+}
+@media screen and (max-width: 1140px) {
+    .herotext{
+        margin:30px 0 0 2%;
+    }
+    #hero{
+        height: 90vh;
+        background-image: url("/static/kabisote/images/smartlady.svg");
+        background-repeat: no-repeat;
+        background-size: auto 75%;
+        background-position: bottom 10% right 5%;
+    
+    }
+}
+@media screen and (max-width: 1000px) {
+    .herotext{
+        margin:20px 0 0 2%;
+    }
+    #hero{
+        height: 90vh;
+        background-image: url("/static/kabisote/images/smartlady.svg");
+        background-repeat: no-repeat;
+        background-size: auto 55%;
+        background-position: bottom 10% right 5%;
+    
+    }
+}
+@media screen and (max-width: 765px) {
+    #hero h1{
+        font-size: 65px;
+        font-family: "Fredoka", sans-serif;
+        font-weight: 600;
+        line-height: 1.3em;
+        margin-bottom: 40px;
+    }
+    #hero h2{
+        display: inline-block!important;
+        padding: 15px 35px;
+        border-radius: 20px;
+        border: 1px dotted #e5c150;
+    }
+}
+@media screen and (max-width: 650px) {
+    .herotext{
+        margin:10px 0 0 1%;
+    }
+    #hero h1{
+        font-size: 55px;
+        font-family: "Fredoka", sans-serif;
+        font-weight: 600;
+        line-height: 1.3em;
+        margin-bottom: 40px;
+    }
+    #hero h2{
+        display: inline-block!important;
+        padding: 10px 25px;
+        border-radius: 20px;
+        border: 1px dotted #e5c150;
+        font-size: 1em;
+    }
 }

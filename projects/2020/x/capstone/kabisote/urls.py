@@ -22,5 +22,7 @@ urlpatterns = [
     path("tb/<slug:bookmarked>/<int:id>", views.tb, name="togglebookmark"),
     path("checkanswers", views.checkanswers, name="checkanswers"),
     path("deleteq", views.deletequestion, name="deletequestion"),
-    path("reorder", views.reorder, name="reorder")
+    path("reorder", views.reorder, name="reorder"),
+    path("random", views.randomize, name="random"),
+    path("error-404",views.error404, name="error-404")
 ]
